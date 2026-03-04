@@ -1,7 +1,11 @@
 "use client";
 
 import { HairInputForm } from "@/components/forms/HairInputForm";
+import { ColorSwatch } from "@/components/canvas/ColorSwatch";
+import { StrandPreview } from "@/components/canvas/StrandPreview";
 import { useHairStore } from "@/store/useHairStore";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Info, TriangleAlert } from "lucide-react";
 
 export default function Home() {
   const result = useHairStore((s) => s.result);
@@ -15,10 +19,42 @@ export default function Home() {
 
       <HairInputForm />
 
-      <div className="p-4 bg-zinc-900 text-zinc-100 rounded-xl font-mono text-xs overflow-auto shadow-sm">
-        <h2 className="text-zinc-500 mb-2">// Simulation Result Output</h2>
-        <pre>{JSON.stringify(result, null, 2)}</pre>
-      </div>
+      {result.status === "success" && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+
+          <div className="flex flex-col md:flex-row gap-8 items-start justify-between bg-white border border-zinc-200 p-6 rounded-[12px]">
+            <div className="flex-1 w-full flex justify-center md:justify-start">
+              <ColorSwatch beforeHex={result.beforeHex} afterHex={result.afterHex} />
+            </div>
+            <div className="flex-shrink-0 mx-auto md:mx-0">
+              <StrandPreview hex={result.afterHex} />
+            </div>
+          </div>
+
+          {result.warnings.length > 0 && (
+            <div className="space-y-3">
+              {result.warnings.map((warning, idx) => (
+                <Alert key={idx} variant="destructive" className="bg-red-50 border border-red-200 text-red-900 rounded-[12px] shadow-none py-3 px-4">
+                  <TriangleAlert className="h-4 w-4" />
+                  <AlertTitle className="text-sm font-semibold mb-1">Warning</AlertTitle>
+                  <AlertDescription className="text-xs">
+                    {warning}
+                  </AlertDescription>
+                </Alert>
+              ))}
+            </div>
+          )}
+
+          <Alert className="rounded-[12px] border border-zinc-200 bg-zinc-50 shadow-none text-zinc-600 py-3 px-4">
+            <Info className="h-4 w-4" />
+            <AlertTitle className="text-sm font-medium mb-1">Disclaimer</AlertTitle>
+            <AlertDescription className="text-xs">
+              Simulation based on color theory. Real results vary by hair condition, product brand, and processing time.
+            </AlertDescription>
+          </Alert>
+
+        </div>
+      )}
     </main>
   );
 }
