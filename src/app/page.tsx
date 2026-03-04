@@ -5,6 +5,7 @@ import { AddLayerForm } from "@/components/forms/AddLayerForm";
 import { ColorSwatch } from "@/components/canvas/ColorSwatch";
 import { StrandPreview } from "@/components/canvas/StrandPreview";
 import { ColorTimeline } from "@/components/timeline/ColorTimeline";
+import { WarmthAlert } from "@/components/shared/WarmthAlert";
 import { useHairStore } from "@/store/useHairStore";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Info, TriangleAlert } from "lucide-react";
@@ -36,6 +37,10 @@ export default function Home() {
           </div>
 
           <AddLayerForm />
+
+          {result.warmthLevel && result.warmthScore !== undefined && result.warmthLevel !== "none" && (
+            <WarmthAlert level={result.warmthLevel} score={result.warmthScore} />
+          )}
 
           {result.warnings.length > 0 && (
             <div className="space-y-3">

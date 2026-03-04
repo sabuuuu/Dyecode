@@ -1,6 +1,7 @@
 import chroma from "chroma-js";
 import { HairState, DyeInput } from "../types";
 import { UNDERLYING_PIGMENTS, BASE_LEVEL_HEX, TONE_HEX } from "./constants";
+import { calculateWarmth, type WarmthLevel } from "./warmth";
 
 export type LiftResult = {
     achievableLevel: number;
@@ -96,15 +97,21 @@ export function simulateResult(hairState: HairState, dyeInput: DyeInput) {
         warnings.push(liftResult.warning);
     }
 
-    // Warm vs Cool simple check - To be expanded in Sprint 5
-    // Just simple warnings for Sprint 1 tests: Level 4 to 7 exposes orange, if adding ash -> warm ash not clean ash
-    // But maybe the test expects it as part of checking hex values, not warnings necessarily, unless explicitly asked.
+    const { score: warmthScore, level: warmthLevel, message: warmthMessage } = calculateWarmth(afterHex);
+
+    if (warmthLevel !== "none" && warmthMessage) {
+        // According to Sprint 5, can display as color-coded alert: yellow / orange / red
+        // but we'll include it in standard warnings array (or we could just return it as warmthScore for a dedicated component). 
+        // We'll return warmthScore and warmthLevel directly to construct custom UI.
+    }
 
     return {
         beforeHex,
         afterHex,
         achievableLevel: liftResult.achievableLevel,
         exposedPigment: liftResult.exposedPigment,
+        warmthScore,
+        warmthLevel,
         warnings,
     };
 }
