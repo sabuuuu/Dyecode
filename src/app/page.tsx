@@ -7,12 +7,35 @@ import { StrandPreview } from "@/components/canvas/StrandPreview";
 import { BleachPanels } from "@/components/canvas/BleachPanels";
 import { ColorTimeline } from "@/components/timeline/ColorTimeline";
 import { WarmthAlert } from "@/components/shared/WarmthAlert";
+import { ExportActions } from "@/components/shared/ExportActions";
 import { useHairStore } from "@/store/useHairStore";
+import { decodeSimulationState } from "@/lib/exportUtils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Info, TriangleAlert } from "lucide-react";
+import { useEffect } from "react";
 
 export default function Home() {
   const result = useHairStore((s) => s.result);
+  const { setHairState, setDyeInput, runSimulation } = useHairStore();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const stateParam = urlParams.get("state");
+
+      if (stateParam) {
+        const decoded = decodeSimulationState(stateParam);
+        if (decoded) {
+          setHairState(decoded.hairState);
+          setDyeInput(decoded.dyeInput);
+          runSimulation();
+
+          // Clean up URL so it doesn't get sticky on refresh
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
+    }
+  }, [setHairState, setDyeInput, runSimulation]);
 
   return (
     <main className="min-h-screen p-8 max-w-2xl mx-auto space-y-8">
@@ -24,7 +47,7 @@ export default function Home() {
       <HairInputForm />
 
       {result.status === "success" && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div id="simulation-result-container" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 bg-zinc-50 rounded-[12px]">
 
           <ColorTimeline />
 
@@ -67,6 +90,7 @@ export default function Home() {
             </AlertDescription>
           </Alert>
 
+          <ExportActions />
         </div>
       )}
     </main>
