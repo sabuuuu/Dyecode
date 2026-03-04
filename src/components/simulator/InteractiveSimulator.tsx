@@ -84,29 +84,64 @@ export function InteractiveSimulator() {
 
             <main className="flex flex-col md:flex-row flex-1 w-full overflow-hidden">
                 {/* Left Side: Character Preview */}
-                <div className="w-full md:w-3/5 flex flex-col items-center justify-center p-8 lg:p-12 bg-zinc-100 dark:bg-zinc-900/40 relative">
+                <div className="w-full md:w-3/5 flex flex-col items-center justify-center p-8 lg:p-12 bg-zinc-100 dark:bg-zinc-900/10 relative">
                     <div className="relative w-full max-w-sm aspect-square flex flex-col items-center justify-center pointer-events-none">
+
+                        {step === 1 ? (
+                            <span className="absolute top-0 text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-4 animate-in fade-in">Starting Canvas</span>
+                        ) : (
+                            <span className="absolute top-0 text-[10px] font-bold uppercase tracking-widest text-[#f49d25] mb-4 animate-in fade-in">Prediction Active</span>
+                        )}
+
                         {/* Hair Illustration Container */}
                         <div className="relative w-72 h-72 sm:w-80 sm:h-80 group mt-[-30px]">
                             {/* Abstract Hair Shape */}
-                            <div
-                                className="absolute inset-0 rounded-[4rem] shadow-2xl overflow-hidden transition-colors duration-700 ease-in-out border-8 border-white dark:border-zinc-800"
-                                style={{ backgroundColor: previewHex }}
-                            >
-                                {/* Subtle 3D Depth Shadow */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-black/0 via-black/0 to-black/30"></div>
-                            </div>
+                            {step === 1 ? (
+                                <div
+                                    className="absolute inset-0 rounded-[4rem] shadow-2xl overflow-hidden transition-colors duration-700 ease-in-out border-8 border-white dark:border-zinc-800"
+                                    style={{ backgroundColor: previewHex }}
+                                >
+                                    {/* Subtle 3D Depth Shadow */}
+                                    <div className="absolute inset-0 bg-gradient-to-br from-black/0 via-black/0 to-black/30"></div>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Dual View for Step 2 */}
+                                    <div className="absolute inset-0 rounded-[4rem] overflow-hidden opacity-40 blur-sm transition-colors duration-700" style={{ backgroundColor: previewHex }}></div>
+                                    <div
+                                        className="absolute inset-0 rounded-[4rem] shadow-2xl overflow-hidden transition-colors duration-700"
+                                        style={{ backgroundColor: TONE_HEX[targetTone] || BASE_LEVEL_HEX[targetLevel] }}
+                                    >
+                                        <div className="absolute inset-0 mix-blend-soft-light opacity-30 bg-white shadow-[inset_0_0_50px_rgba(255,255,255,0.5)]"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-br from-black/0 via-black/0 to-black/40"></div>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         {/* Interactive Badge Below */}
-                        <div className="mt-8 z-10 inline-flex flex-col items-center gap-1 px-5 py-3 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-lg capitalize">
-                            <span className="text-[10px] font-bold tracking-widest text-[#f49d25] uppercase">
-                                {step === 1 ? "Starting Canvas" : "Simulated Base"}
-                            </span>
-                            <span className="text-zinc-900 dark:text-zinc-100 text-base font-semibold tracking-wide">
-                                Level {draftLevel} · {draftUndertone.replace('-', ' ')}
-                            </span>
-                        </div>
+                        {step === 1 ? (
+                            <div className="mt-8 z-10 inline-flex flex-col items-center gap-1 px-5 py-3 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-lg capitalize animate-in fade-in zoom-in-95">
+                                <span className="text-[10px] font-bold tracking-widest text-[#f49d25] uppercase">
+                                    Current Base
+                                </span>
+                                <span className="text-zinc-900 dark:text-zinc-100 text-base font-semibold tracking-wide flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: previewHex }}></span>
+                                    Level {draftLevel} · {draftUndertone.replace('-', ' ')}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="mt-12 flex gap-3 z-10 animate-in fade-in slide-in-from-bottom-4">
+                                <div className="flex items-center gap-2 px-4 py-3 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm capitalize">
+                                    <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: previewHex }}></span>
+                                    <span className="text-zinc-500 dark:text-zinc-300 text-[11px] font-medium">Now · Lvl {draftLevel} · {draftUndertone.replace('-', ' ')}</span>
+                                </div>
+                                <div className="flex items-center gap-2 px-4 py-3 bg-zinc-900 dark:bg-zinc-200 rounded-2xl shadow-lg capitalize">
+                                    <span className="w-3 h-3 rounded-full shadow-sm ring-2 ring-white/20" style={{ backgroundColor: TONE_HEX[targetTone] || BASE_LEVEL_HEX[targetLevel] }}></span>
+                                    <span className="text-white dark:text-zinc-950 text-[11px] font-bold tracking-wide">Expected · Lvl {targetLevel} · {targetTone.replace('-', ' ')}</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -234,8 +269,8 @@ export function InteractiveSimulator() {
                     ) : (
                         <div className="flex flex-col gap-10 animate-in fade-in slide-in-from-right-4 duration-500">
                             <div>
-                                <h2 className="text-[11px] font-bold tracking-[0.2em] text-[#f49d25] uppercase mb-8">
-                                    Step 2 • Formulate Result
+                                <h2 className="text-[10px] font-bold tracking-[0.2em] text-zinc-500 dark:text-zinc-400 uppercase">
+                                    What you're going for
                                 </h2>
                             </div>
 
@@ -246,82 +281,126 @@ export function InteractiveSimulator() {
                                     <span className="text-xs font-black text-zinc-600 dark:text-[#f49d25] bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-md">Lvl {targetLevel}</span>
                                 </div>
 
-                                <Slider
-                                    defaultValue={[targetLevel]}
-                                    max={10} min={1} step={1}
-                                    onValueChange={(v) => setTargetLevel(v[0])}
-                                    className="py-4"
-                                />
+                                <div className="relative h-2 w-full rounded-[12px] bg-gradient-to-r from-black via-zinc-400 dark:via-zinc-600 to-yellow-100 mt-6 mb-2">
+                                    <div className="absolute left-[40%] top-[-8px] bottom-[-8px] w-0.5 bg-black/40 dark:bg-white/60 z-10"></div>
+                                    <div className="absolute left-[40%] bottom-[-24px] -translate-x-1/2 text-[8px] font-bold text-zinc-500 uppercase whitespace-nowrap">You are here</div>
+                                    <Slider
+                                        defaultValue={[targetLevel]}
+                                        max={10} min={1} step={1}
+                                        onValueChange={(v) => setTargetLevel(v[0])}
+                                        className="absolute -inset-x-2 -inset-y-3 !h-8 z-20 cursor-pointer opacity-0"
+                                    />
+                                    <div
+                                        className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-[12px] shadow-xl border-2 border-zinc-950 z-20 pointer-events-none transition-all duration-150"
+                                        style={{ left: `calc(${((targetLevel - 1) / 9) * 100}% - 8px)` }}
+                                    ></div>
+                                </div>
                             </div>
 
                             {/* Target Tone Picker */}
-                            <div className="space-y-4">
-                                <label className="text-sm font-bold text-zinc-900 dark:text-zinc-200">Primary Tone</label>
-                                <div className="flex flex-wrap gap-2">
+                            <div className="space-y-4 pt-4">
+                                <label className="text-sm font-semibold text-zinc-900 dark:text-zinc-200">Target Tone</label>
+                                <div className="grid grid-cols-3 gap-y-6 gap-x-4">
                                     {targetTones.map((tone) => {
                                         const isSelected = targetTone === tone;
                                         const swatchHex = TONE_HEX[tone] || "#ccc";
                                         return (
-                                            <button
-                                                key={tone}
-                                                onClick={() => setTargetTone(tone)}
-                                                style={{ backgroundColor: swatchHex }}
-                                                title={tone.replace("-", " ")}
-                                                className={cn(
-                                                    "w-8 h-8 rounded-full shadow-sm transition-all duration-200",
-                                                    isSelected ? "scale-110 border-[3px] border-zinc-900 dark:border-white shadow-md z-10" : "hover:scale-105 opacity-90"
-                                                )}
-                                            />
+                                            <div key={tone} className="flex flex-col items-center gap-2">
+                                                <button
+                                                    onClick={() => setTargetTone(tone)}
+                                                    style={{ backgroundColor: swatchHex }}
+                                                    className={cn(
+                                                        "w-12 h-12 rounded-[12px] shadow-sm transition-all duration-200",
+                                                        isSelected
+                                                            ? "border-[3px] border-zinc-900 dark:border-white ring-4 ring-zinc-900/10 dark:ring-white/10 scale-110 z-10"
+                                                            : "border border-black/10 dark:border-white/10 hover:ring-2 ring-zinc-900/5 dark:ring-white/20 opacity-90"
+                                                    )}
+                                                />
+                                                <span className={cn(
+                                                    "text-[10px] font-medium capitalize",
+                                                    isSelected ? "text-zinc-900 dark:text-zinc-200 font-bold" : "text-zinc-500 dark:text-zinc-400"
+                                                )}>
+                                                    {tone.replace("-", " ")}
+                                                </span>
+                                            </div>
                                         );
                                     })}
                                 </div>
-                                <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 mt-4 block">Vivids & Direct Dyes</label>
-                                <div className="flex flex-wrap gap-2">
+
+                                {/* Vivids */}
+                                <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mt-6 block border-t border-zinc-200 dark:border-white/10 pt-6">Vivids & Direct Dyes</label>
+                                <div className="grid grid-cols-3 gap-y-6 gap-x-4">
                                     {vividTones.map((tone) => {
                                         const isSelected = targetTone === tone;
                                         const swatchHex = TONE_HEX[tone] || "#ccc";
                                         return (
-                                            <button
-                                                key={tone}
-                                                onClick={() => setTargetTone(tone)}
-                                                style={{ backgroundColor: swatchHex }}
-                                                title={tone.replace("-", " ")}
-                                                className={cn(
-                                                    "w-8 h-8 rounded-full shadow-sm transition-all duration-200",
-                                                    isSelected ? "scale-110 border-[3px] border-zinc-900 dark:border-white shadow-md z-10" : "hover:scale-105 opacity-90"
-                                                )}
-                                            />
+                                            <div key={tone} className="flex flex-col items-center gap-2">
+                                                <button
+                                                    onClick={() => setTargetTone(tone)}
+                                                    style={{ backgroundColor: swatchHex }}
+                                                    className={cn(
+                                                        "w-10 h-10 rounded-full shadow-sm transition-all duration-200",
+                                                        isSelected
+                                                            ? "border-[3px] border-zinc-900 dark:border-white ring-4 ring-zinc-900/10 dark:ring-white/10 scale-110 z-10"
+                                                            : "border border-black/10 dark:border-white/10 hover:ring-2 ring-zinc-900/5 dark:ring-white/20 opacity-90"
+                                                    )}
+                                                />
+                                                <span className={cn(
+                                                    "text-[9px] font-medium capitalize",
+                                                    isSelected ? "text-zinc-900 dark:text-zinc-200 font-bold" : "text-zinc-500 dark:text-zinc-400"
+                                                )}>
+                                                    {tone.replace("-", " ")}
+                                                </span>
+                                            </div>
                                         );
                                     })}
                                 </div>
                             </div>
 
                             {/* Bleach Panel */}
-                            <div className="space-y-4 p-5 rounded-[16px] bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
-                                <label className="flex items-center gap-3 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={bleachEnabled}
-                                        onChange={(e) => setBleachEnabled(e.target.checked)}
-                                        className="w-5 h-5 rounded cursor-pointer accent-[#f49d25]"
-                                    />
-                                    <span className="text-sm font-bold">Use Bleach / Lightener</span>
-                                </label>
+                            <div className="space-y-6 mt-4 pt-8 border-t border-zinc-200 dark:border-white/5">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-400">Lifting with bleach first</span>
+                                    <button
+                                        onClick={() => setBleachEnabled(!bleachEnabled)}
+                                        className={cn(
+                                            "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none",
+                                            bleachEnabled ? "bg-[#f49d25]" : "bg-zinc-200 dark:bg-zinc-800"
+                                        )}
+                                    >
+                                        <span className={cn(
+                                            "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                                            bleachEnabled ? "translate-x-6 shadow-sm" : "translate-x-1"
+                                        )}></span>
+                                    </button>
+                                </div>
 
-                                {bleachEnabled && (
-                                    <div className="pt-3 animate-in fade-in zoom-in-95">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <label className="text-xs font-bold text-zinc-500">Bleach Power (Lifts)</label>
-                                            <span className="text-xs font-black">{bleachLifts} Levels</span>
-                                        </div>
-                                        <Slider
-                                            defaultValue={[bleachLifts]}
-                                            max={3} min={1} step={1}
-                                            onValueChange={(v) => setBleachLifts(v[0])}
-                                            className="py-2"
-                                        />
-                                    </div>
-                                )}
+                                <div className="grid grid-cols-3 gap-3 animate-in fade-in slide-in-from-top-2 duration-300 transition-opacity" style={{ opacity: bleachEnabled ? 1 : 0.3, pointerEvents: bleachEnabled ? 'auto' : 'none' }}>
+                                    {[1, 2, 3].map((lifts) => (
+                                        <button
+                                            key={`bleach-${lifts}`}
+                                            onClick={() => { if (bleachEnabled) setBleachLifts(lifts) }}
+                                            className={cn(
+                                                "flex flex-col p-3 rounded-[12px] border items-center gap-2 transition-all",
+                                                bleachLifts === lifts && bleachEnabled
+                                                    ? "bg-zinc-100 dark:bg-zinc-900/80 border-zinc-900 dark:border-zinc-700 shadow-sm ring-1 ring-zinc-900/10 dark:ring-white/10"
+                                                    : "bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-white/5 hover:border-zinc-300 dark:hover:border-zinc-700"
+                                            )}
+                                        >
+                                            <div className={cn(
+                                                "w-8 h-8 rounded-[8px]",
+                                                lifts === 1 ? "bg-[#c2410c]" : lifts === 2 ? "bg-[#ea580c]" : "bg-[#f59e0b]",
+                                                bleachLifts === lifts && bleachEnabled ? "shadow-inner border border-black/20 dark:border-white/20" : ""
+                                            )}></div>
+                                            <span className={cn(
+                                                "text-[10px] font-bold uppercase",
+                                                bleachLifts === lifts && bleachEnabled ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-500"
+                                            )}>
+                                                {lifts} {lifts === 1 ? 'Lift' : 'Lifts'}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
                             <div className="flex-1"></div>
@@ -335,9 +414,10 @@ export function InteractiveSimulator() {
                                 </button>
                                 <button
                                     onClick={handleSimulate}
-                                    className="px-8 py-4 bg-[#f49d25] text-white rounded-[14px] hover:bg-[#e08e1f] transition-all shadow-md shadow-[#f49d25]/20 font-bold block cursor-pointer"
+                                    className="flex items-center gap-2 px-8 py-3 bg-zinc-800 dark:bg-white border border-zinc-700 dark:border-white text-zinc-100 dark:text-zinc-900 rounded-[12px] hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-all group"
                                 >
-                                    Simulate Results
+                                    <span className="font-bold text-sm">Simulate</span>
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </button>
                             </div>
                         </div>
