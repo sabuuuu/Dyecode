@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { simulateResult } from "../engine/pigment";
+import { bleachLiftProgression } from "../engine/bleach";
 import type { HairState, DyeInput, SimulationResult } from "../types";
 
 type HairStore = {
@@ -7,6 +8,7 @@ type HairStore = {
     dyeInput: DyeInput | null;
     result: SimulationResult;
     colorHistory: SimulationResult[];
+    bleachProgression: SimulationResult[];
     setHairState: (s: HairState) => void;
     setDyeInput: (d: DyeInput) => void;
     runSimulation: () => void;
@@ -19,6 +21,7 @@ export const useHairStore = create<HairStore>((set, get) => ({
     dyeInput: null,
     result: { status: "idle" },
     colorHistory: [],
+    bleachProgression: [],
     setHairState: (hairState) => set({ hairState }),
     setDyeInput: (dyeInput) => set({ dyeInput }),
     runSimulation: () => {
@@ -33,7 +36,12 @@ export const useHairStore = create<HairStore>((set, get) => ({
             appliedInput: dyeInput,
         };
 
-        set({ result, colorHistory: [result] });
+        let bleachProgression: SimulationResult[] = [];
+        if (dyeInput.bleachEnabled) {
+            bleachProgression = bleachLiftProgression(hairState, dyeInput);
+        }
+
+        set({ result, colorHistory: [result], bleachProgression });
     },
     addLayer: (nextDyeInput: DyeInput) => {
         const { result, colorHistory } = get();
@@ -64,15 +72,22 @@ export const useHairStore = create<HairStore>((set, get) => ({
             appliedInput: nextDyeInput,
         };
 
+        let bleachProgression: SimulationResult[] = [];
+        if (nextDyeInput.bleachEnabled) {
+            bleachProgression = bleachLiftProgression(newHairState, nextDyeInput);
+        }
+
         set({
             result: currentResult,
-            colorHistory: [...colorHistory, currentResult]
+            colorHistory: [...colorHistory, currentResult],
+            bleachProgression
         });
     },
     reset: () => set({
         hairState: null,
         dyeInput: null,
         result: { status: "idle" },
-        colorHistory: []
+        colorHistory: [],
+        bleachProgression: [],
     }),
 }));

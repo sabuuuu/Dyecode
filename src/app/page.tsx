@@ -4,6 +4,7 @@ import { HairInputForm } from "@/components/forms/HairInputForm";
 import { AddLayerForm } from "@/components/forms/AddLayerForm";
 import { ColorSwatch } from "@/components/canvas/ColorSwatch";
 import { StrandPreview } from "@/components/canvas/StrandPreview";
+import { BleachPanels } from "@/components/canvas/BleachPanels";
 import { ColorTimeline } from "@/components/timeline/ColorTimeline";
 import { WarmthAlert } from "@/components/shared/WarmthAlert";
 import { useHairStore } from "@/store/useHairStore";
@@ -35,6 +36,8 @@ export default function Home() {
               <StrandPreview hex={result.afterHex} />
             </div>
           </div>
+
+          <BleachPanels />
 
           <AddLayerForm />
 
