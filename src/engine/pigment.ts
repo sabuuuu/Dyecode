@@ -86,7 +86,14 @@ export function simulateResult(hairState: HairState, dyeInput: DyeInput) {
         bleachLifts || 0
     );
 
-    const beforeHex = BASE_LEVEL_HEX[currentLevel] || "#121212";
+    const startBaseHex = BASE_LEVEL_HEX[currentLevel] || "#121212";
+    let beforeHex = startBaseHex;
+
+    if (TONE_HEX[hairState.currentUndertone]) {
+        beforeHex = blendTones(startBaseHex, "neutral", TONE_HEX[hairState.currentUndertone]);
+    } else {
+    }
+
     const targetBaseHex = BASE_LEVEL_HEX[liftResult.achievableLevel] || "#121212";
 
     const toneHex = TONE_HEX[targetTone] || TONE_HEX.neutral;

@@ -28,9 +28,20 @@ export const BASE_LEVEL_HEX: Record<number, string> = {
 // Primary hue/tone modifiers (these could map to blending modifiers)
 export const TONE_HEX: Record<string, string> = {
     ash: "#8c9096",
+    pearl: "#a399b3",
+    matte: "#8c968c",
     neutral: "#b3a496",
+    beige: "#c9bfae",
     gold: "#d9b566",
     copper: "#c2692e",
     red: "#9c2727",
     mahogany: "#c74f55",
+    burgundy: "#802040",
+    blue: "#2b4085",
+    pink: "#d6538b",
+    purple: "#5d328a",
+    green: "#408544",
+    teal: "#2b8577",
+    magenta: "#a6246f",
+    silver: "#e0e0e0",
 };

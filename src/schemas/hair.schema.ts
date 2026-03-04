@@ -1,8 +1,15 @@
 import { z } from "zod";
 
-export const undertoneSchema = z.enum(["red", "red-orange", "orange", "orange-yellow", "yellow", "neutral"]);
+export const undertoneSchema = z.enum([
+    "red", "red-orange", "orange", "orange-yellow", "yellow", "neutral",
+    "ash", "pearl", "matte", "beige", "gold", "copper", "mahogany", "burgundy",
+    "blue", "pink", "purple", "green", "teal", "magenta", "silver"
+]);
 
-export const dyeToneSchema = z.enum(["ash", "neutral", "gold", "copper", "red", "mahogany"]);
+export const dyeToneSchema = z.enum([
+    "ash", "pearl", "matte", "neutral", "beige", "gold", "copper", "red", "mahogany", "burgundy",
+    "blue", "pink", "purple", "green", "teal", "magenta", "silver"
+]);
 
 export const hairHistorySchema = z.enum(["virgin", "dyed-darker", "dyed-lighter"]);
 

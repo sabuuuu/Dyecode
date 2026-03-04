@@ -6,7 +6,7 @@ import { useHairStore } from "@/store/useHairStore";
 import { hairFormSchema, type HairFormInput } from "@/schemas/hair.schema";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -86,7 +86,7 @@ export function HairInputForm() {
                                     name="currentUndertone"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Undertone</FormLabel>
+                                            <FormLabel>Tone / Undertone</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger className="rounded-xl bg-white">
@@ -94,12 +94,33 @@ export function HairInputForm() {
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="red">Red</SelectItem>
-                                                    <SelectItem value="red-orange">Red Orange</SelectItem>
-                                                    <SelectItem value="orange">Orange</SelectItem>
-                                                    <SelectItem value="orange-yellow">Orange Yellow</SelectItem>
-                                                    <SelectItem value="yellow">Yellow</SelectItem>
-                                                    <SelectItem value="neutral">Neutral</SelectItem>
+                                                    <SelectGroup>
+                                                        <SelectLabel>Natural</SelectLabel>
+                                                        <SelectItem value="red">Red</SelectItem>
+                                                        <SelectItem value="red-orange">Red Orange</SelectItem>
+                                                        <SelectItem value="orange">Orange</SelectItem>
+                                                        <SelectItem value="orange-yellow">Orange Yellow</SelectItem>
+                                                        <SelectItem value="yellow">Yellow</SelectItem>
+                                                        <SelectItem value="neutral">Neutral</SelectItem>
+                                                    </SelectGroup>
+                                                    <SelectGroup>
+                                                        <SelectLabel>Current Dye / Vivids</SelectLabel>
+                                                        <SelectItem value="ash">Ash</SelectItem>
+                                                        <SelectItem value="pearl">Pearl</SelectItem>
+                                                        <SelectItem value="matte">Matte</SelectItem>
+                                                        <SelectItem value="beige">Beige</SelectItem>
+                                                        <SelectItem value="gold">Gold</SelectItem>
+                                                        <SelectItem value="copper">Copper</SelectItem>
+                                                        <SelectItem value="mahogany">Mahogany</SelectItem>
+                                                        <SelectItem value="burgundy">Burgundy</SelectItem>
+                                                        <SelectItem value="blue">Blue</SelectItem>
+                                                        <SelectItem value="pink">Pink</SelectItem>
+                                                        <SelectItem value="purple">Purple</SelectItem>
+                                                        <SelectItem value="green">Green</SelectItem>
+                                                        <SelectItem value="teal">Teal</SelectItem>
+                                                        <SelectItem value="magenta">Magenta</SelectItem>
+                                                        <SelectItem value="silver">Silver</SelectItem>
+                                                    </SelectGroup>
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />
@@ -175,12 +196,29 @@ export function HairInputForm() {
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="ash">Ash</SelectItem>
-                                                    <SelectItem value="neutral">Neutral</SelectItem>
-                                                    <SelectItem value="gold">Gold</SelectItem>
-                                                    <SelectItem value="copper">Copper</SelectItem>
-                                                    <SelectItem value="red">Red</SelectItem>
-                                                    <SelectItem value="mahogany">Mahogany</SelectItem>
+                                                    <SelectGroup>
+                                                        <SelectLabel>Primary / Oxidative</SelectLabel>
+                                                        <SelectItem value="ash">Ash</SelectItem>
+                                                        <SelectItem value="pearl">Pearl</SelectItem>
+                                                        <SelectItem value="matte">Matte</SelectItem>
+                                                        <SelectItem value="neutral">Neutral</SelectItem>
+                                                        <SelectItem value="beige">Beige</SelectItem>
+                                                        <SelectItem value="gold">Gold</SelectItem>
+                                                        <SelectItem value="copper">Copper</SelectItem>
+                                                        <SelectItem value="red">Red</SelectItem>
+                                                        <SelectItem value="mahogany">Mahogany</SelectItem>
+                                                        <SelectItem value="burgundy">Burgundy</SelectItem>
+                                                    </SelectGroup>
+                                                    <SelectGroup>
+                                                        <SelectLabel>Vivids / Direct Dyes</SelectLabel>
+                                                        <SelectItem value="blue">Blue</SelectItem>
+                                                        <SelectItem value="pink">Pink</SelectItem>
+                                                        <SelectItem value="purple">Purple</SelectItem>
+                                                        <SelectItem value="green">Green</SelectItem>
+                                                        <SelectItem value="teal">Teal</SelectItem>
+                                                        <SelectItem value="magenta">Magenta</SelectItem>
+                                                        <SelectItem value="silver">Silver</SelectItem>
+                                                    </SelectGroup>
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />
@@ -246,6 +284,6 @@ export function HairInputForm() {
                     </form>
                 </Form>
             </CardContent>
-        </Card>
+        </Card >
     );
 }
