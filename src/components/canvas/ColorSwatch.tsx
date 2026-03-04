@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { getColorName } from "@/lib/colorNaming";
 
 interface ColorSwatchProps {
     beforeHex: string;
@@ -9,6 +10,13 @@ interface ColorSwatchProps {
 
 export function ColorSwatch({ beforeHex, afterHex }: ColorSwatchProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [startName, setStartName] = useState<string>("");
+    const [endName, setEndName] = useState<string>("");
+
+    useEffect(() => {
+        setStartName(getColorName(beforeHex).name);
+        setEndName(getColorName(afterHex).name);
+    }, [beforeHex, afterHex]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -40,8 +48,14 @@ export function ColorSwatch({ beforeHex, afterHex }: ColorSwatchProps) {
                 />
             </div>
             <div className="flex w-full justify-between text-[11px] uppercase tracking-wider font-semibold text-zinc-500 px-1">
-                <span>Current</span>
-                <span>Predicted Result</span>
+                <div className="flex flex-col items-start w-1/2 overflow-hidden truncate">
+                    <span>Current</span>
+                    <span className="text-[10px] text-zinc-400 capitalize truncate w-full" title={startName}>{startName}</span>
+                </div>
+                <div className="flex flex-col items-end w-1/2 overflow-hidden truncate">
+                    <span>Predicted Result</span>
+                    <span className="text-[10px] text-zinc-400 capitalize truncate w-full text-right" title={endName}>{endName}</span>
+                </div>
             </div>
         </div>
     );
