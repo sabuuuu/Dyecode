@@ -1,8 +1,10 @@
 "use client";
 
 import { HairInputForm } from "@/components/forms/HairInputForm";
+import { AddLayerForm } from "@/components/forms/AddLayerForm";
 import { ColorSwatch } from "@/components/canvas/ColorSwatch";
 import { StrandPreview } from "@/components/canvas/StrandPreview";
+import { ColorTimeline } from "@/components/timeline/ColorTimeline";
 import { useHairStore } from "@/store/useHairStore";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Info, TriangleAlert } from "lucide-react";
@@ -22,14 +24,18 @@ export default function Home() {
       {result.status === "success" && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
 
+          <ColorTimeline />
+
           <div className="flex flex-col md:flex-row gap-8 items-start justify-between bg-white border border-zinc-200 p-6 rounded-[12px]">
             <div className="flex-1 w-full flex justify-center md:justify-start">
               <ColorSwatch beforeHex={result.beforeHex} afterHex={result.afterHex} />
             </div>
-            <div className="flex-shrink-0 mx-auto md:mx-0">
+            <div className="shrink-0 mx-auto md:mx-0">
               <StrandPreview hex={result.afterHex} />
             </div>
           </div>
+
+          <AddLayerForm />
 
           {result.warnings.length > 0 && (
             <div className="space-y-3">
@@ -58,3 +64,4 @@ export default function Home() {
     </main>
   );
 }
+

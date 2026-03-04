@@ -30,14 +30,44 @@ export const useHairStore = create<HairStore>((set, get) => ({
         const result: SimulationResult = {
             status: "success",
             ...engineResult,
+            appliedInput: dyeInput,
         };
 
         set({ result, colorHistory: [result] });
     },
-    addLayer: (dyeInput) => {
-        // Sprint 4: Color History placeholder
-        // To be fleshed out, but adding signature to match RULES.md
-        console.warn("addLayer not fully implemented yet");
+    addLayer: (nextDyeInput: DyeInput) => {
+        const { result, colorHistory } = get();
+        if (result.status !== "success") return;
+
+        const mappedUndertones = ["red", "red-orange", "orange", "orange-yellow", "yellow", "neutral"];
+        const nextUndertone = mappedUndertones.includes(result.exposedPigment)
+            ? (result.exposedPigment as import("../types").Undertone)
+            : "neutral";
+
+        let newHistory: import("../types").HairHistory = "dyed-darker";
+        if (nextDyeInput.bleachEnabled || nextDyeInput.targetLevel > result.achievableLevel) {
+            newHistory = "dyed-lighter";
+        }
+
+        const newHairState: import("../types").HairState = {
+            currentLevel: result.achievableLevel,
+            currentUndertone: nextUndertone,
+            hairHistory: newHistory,
+        };
+
+        const engineResult = simulateResult(newHairState, nextDyeInput);
+
+        const currentResult: SimulationResult = {
+            status: "success",
+            ...engineResult,
+            beforeHex: result.afterHex, // Chain visual hexes
+            appliedInput: nextDyeInput,
+        };
+
+        set({
+            result: currentResult,
+            colorHistory: [...colorHistory, currentResult]
+        });
     },
     reset: () => set({
         hairState: null,

@@ -104,6 +104,7 @@ export function simulateResult(hairState: HairState, dyeInput: DyeInput) {
         beforeHex,
         afterHex,
         achievableLevel: liftResult.achievableLevel,
+        exposedPigment: liftResult.exposedPigment,
         warnings,
     };
 }
