@@ -19,8 +19,19 @@ export const dyeInputSchema = z.object({
     bleachLifts: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
 });
 
+export const hairFormSchema = z.object({
+    currentLevel: hairStateSchema.shape.currentLevel,
+    currentUndertone: hairStateSchema.shape.currentUndertone,
+    hairHistory: hairStateSchema.shape.hairHistory,
+    targetLevel: dyeInputSchema.shape.targetLevel,
+    targetTone: dyeInputSchema.shape.targetTone,
+    bleachEnabled: dyeInputSchema.shape.bleachEnabled,
+    bleachLifts: dyeInputSchema.shape.bleachLifts,
+});
+
 export type Undertone = z.infer<typeof undertoneSchema>;
 export type DyeTone = z.infer<typeof dyeToneSchema>;
 export type HairHistory = z.infer<typeof hairHistorySchema>;
 export type HairState = z.infer<typeof hairStateSchema>;
 export type DyeInput = z.infer<typeof dyeInputSchema>;
+export type HairFormInput = z.infer<typeof hairFormSchema>;
