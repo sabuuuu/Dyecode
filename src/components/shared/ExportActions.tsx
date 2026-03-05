@@ -15,17 +15,15 @@ export function ExportActions() {
         toast.promise(
             exportImage("simulation-result-container", "dyecode-simulation.png"),
             {
-                loading: 'Generating image...',
-                success: 'Image downloaded!',
-                error: 'Failed to export image.',
+                loading: "Generating image...",
+                success: "Image downloaded!",
+                error: "Failed to export image.",
             }
         );
     };
 
     const handleCopyLink = () => {
         try {
-            // Encode ONLY the initial payload 
-            // the full timeline would make the URL too massive for simple sharing
             const encoded = encodeSimulationState(hairState, result.appliedInput);
 
             const url = new URL(window.location.href);
@@ -39,25 +37,25 @@ export function ExportActions() {
     };
 
     return (
-        <div className="flex items-center justify-end gap-2 pt-4 border-t border-zinc-100">
+        <div className="inline-flex items-center gap-2 rounded-[16px] border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/80 px-2 py-1">
             <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={handleCopyLink}
-                className="rounded-xl border-zinc-200 text-zinc-600 shadow-none hover:bg-zinc-100 h-9"
+                className="rounded-[10px] px-3 h-8 text-[11px] text-zinc-600 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
-                <Link2 className="w-4 h-4 mr-2" />
-                Copy Link
+                <Link2 className="w-3 h-3 mr-1.5" />
+                Copy link
             </Button>
 
             <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={handleExport}
-                className="rounded-xl border-zinc-200 text-zinc-600 shadow-none hover:bg-zinc-100 h-9"
+                className="rounded-[10px] px-3 h-8 text-[11px] text-white hover:text-white dark:text-zinc-50 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 border border-zinc-900/80 dark:border-zinc-100"
             >
-                <Download className="w-4 h-4 mr-2" />
-                Export Image
+                <Download className="w-3 h-3 mr-1.5" />
+                Export image
             </Button>
         </div>
     );

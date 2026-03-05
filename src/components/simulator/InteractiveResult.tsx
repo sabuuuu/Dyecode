@@ -1,14 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { useHairStore } from "@/store/useHairStore";
 import { getColorName } from "@/lib/colorNaming";
-import { ArrowLeft, RefreshCw, Share, Download, Plus, AlertTriangle } from "lucide-react";
+import { RefreshCw, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ExportActions } from "../shared/ExportActions";
 import { AddLayerForm } from "../forms/AddLayerForm";
 
 export function InteractiveResult() {
     const { result, colorHistory, reset, bleachProgression } = useHairStore();
+    const [showLayerControls, setShowLayerControls] = useState(false);
 
     if (result.status !== "success") return null;
 
@@ -173,20 +175,48 @@ export function InteractiveResult() {
                         })}
                     </div>
                 </div>
+
+                {/* Next layer & export actions */}
+                <section className="w-full max-w-5xl mb-20 grid gap-6 md:grid-cols-[minmax(0,2.1fr)_minmax(0,1.2fr)]">
+                    <div className="rounded-[24px] border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 px-4 sm:px-6 py-5">
+                        {!showLayerControls ? (
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
+                                        Not satisfied yet?
+                                    </p>
+                                    <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">
+                                        Try another layer on top of this result.
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowLayerControls(true)}
+                                    className="inline-flex items-center justify-center rounded-[14px] border border-zinc-200 dark:border-zinc-700 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-4 py-2 text-xs font-semibold hover:bg-zinc-800 dark:hover:bg-white transition-colors"
+                                >
+                                    Add another layer
+                                </button>
+                            </div>
+                        ) : (
+                            <AddLayerForm />
+                        )}
+                    </div>
+
+                    <div className="rounded-[24px] border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 px-4 sm:px-6 py-5 flex flex-col justify-between gap-3">
+                        <div>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
+                                Save & share
+                            </p>
+                            <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">
+                                Export this view or copy a link to revisit it later.
+                            </p>
+                        </div>
+                        <div className="flex justify-end">
+                            <ExportActions />
+                        </div>
+                    </div>
+                </section>
             </main>
-
-            {/* Sticky Bottom Actions */}
-            <div className="sticky bottom-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md px-4 sm:px-12 py-6 border-t border-zinc-200 dark:border-zinc-900 z-20">
-                <div className="max-w-5xl mx-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex-1">
-                        <AddLayerForm />
-                    </div>
-
-                    <div className="flex gap-3 shrink-0">
-                        <ExportActions />
-                    </div>
-                </div>
-            </div>
 
             <footer className="py-4 bg-zinc-100 dark:bg-zinc-950">
                 <p className="text-center text-zinc-500 text-[9px] uppercase tracking-widest max-w-xl mx-auto px-4">
