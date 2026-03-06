@@ -57,7 +57,7 @@ export function SimulatorStepOne({
           </div>
 
           <Slider
-            defaultValue={[draftLevel]}
+            value={[draftLevel]}
             max={10}
             min={1}
             step={1}

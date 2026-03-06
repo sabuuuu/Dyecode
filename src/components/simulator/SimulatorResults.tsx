@@ -1,4 +1,6 @@
 import { BASE_LEVEL_HEX, TONE_HEX } from "@/engine/constants";
+import { blendTones } from "@/engine/pigment";
+import { HairPreviewCanvas } from "./HairPreviewCanvas";
 
 type SimulatorResultsProps = {
   step: number;
@@ -16,12 +18,14 @@ export function SimulatorResults({
   targetTone,
 }: SimulatorResultsProps) {
   const base = BASE_LEVEL_HEX[draftLevel] || "#121212";
+  const draftToneHex = TONE_HEX[draftUndertone];
   const previewHex =
-    TONE_HEX[draftUndertone] != null
-      ? TONE_HEX[draftUndertone]
-      : base;
+    draftToneHex != null ? blendTones(base, "neutral", draftToneHex) : base;
 
-  const expectedHex = TONE_HEX[targetTone] || BASE_LEVEL_HEX[targetLevel];
+  const targetBase = BASE_LEVEL_HEX[targetLevel] || "#121212";
+  const targetToneHex = TONE_HEX[targetTone];
+  const expectedHex =
+    targetToneHex != null ? blendTones(targetBase, "neutral", targetToneHex) : targetBase;
 
   return (
     <div className="w-full md:w-3/5 flex flex-col items-center justify-center p-8 lg:p-12 bg-zinc-100 dark:bg-zinc-900/10 relative">
@@ -40,22 +44,20 @@ export function SimulatorResults({
           {step === 1 ? (
             <div
               className="absolute inset-0 rounded-[4rem] shadow-2xl overflow-hidden transition-colors duration-700 ease-in-out border-8 border-white dark:border-zinc-800"
-              style={{ backgroundColor: previewHex }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-black/0 via-black/0 to-black/30" />
+              <HairPreviewCanvas hex={previewHex} />
             </div>
           ) : (
             <>
               <div
-                className="absolute inset-0 rounded-[4rem] overflow-hidden opacity-40 blur-sm transition-colors duration-700"
-                style={{ backgroundColor: previewHex }}
-              />
+                className="absolute inset-0 rounded-[4rem] overflow-hidden opacity-40 blur-sm transition-[opacity,filter] duration-500"
+              >
+                <HairPreviewCanvas hex={previewHex} />
+              </div>
               <div
                 className="absolute inset-0 rounded-[4rem] shadow-2xl overflow-hidden transition-colors duration-700"
-                style={{ backgroundColor: expectedHex }}
               >
-                <div className="absolute inset-0 mix-blend-soft-light opacity-30 bg-white shadow-[inset_0_0_50px_rgba(255,255,255,0.5)]" />
-                <div className="absolute inset-0 bg-gradient-to-br from-black/0 via-black/0 to-black/40" />
+                <HairPreviewCanvas hex={expectedHex} />
               </div>
             </>
           )}

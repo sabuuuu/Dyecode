@@ -49,29 +49,41 @@ export function simulateLift(
 }
 
 export function blendTones(baseHex: string, exposedPigmentStr: string, targetToneHex: string): string {
-    // Map exposed pigments to approximate actual colors they'd represent
     const exposedHexMap: Record<string, string> = {
-        "black": "#121212",
+        black: "#121212",
         "near-black": "#211c19",
         "dark-brown": "#3b281f",
-        "red": "#801212",
-        "red-orange": "#9e340b",
-        "orange": "#bd4d04",
-        "orange-yellow": "#d18c15",
-        "yellow": "#d1ba15",
-        "pale-yellow": "#ded573",
-        "white-yellow": "#e8e5af",
-        "neutral": "#b3a496",
+        red: "#7f1515",
+        "red-orange": "#a3340f",
+        orange: "#c5520c",
+        "orange-yellow": "#d78a1a",
+        yellow: "#d8b51a",
+        "pale-yellow": "#e3d47a",
+        "white-yellow": "#f0e9b5",
+        neutral: "#b3a496",
     };
 
-    const exposedHex = exposedHexMap[exposedPigmentStr] || "#b3a496";
+    const safeBase = chroma.valid(baseHex) ? baseHex : "#121212";
+    const safeTarget = chroma.valid(targetToneHex) ? targetToneHex : "#b3a496";
+    const exposedHex = chroma.valid(exposedHexMap[exposedPigmentStr])
+        ? exposedHexMap[exposedPigmentStr]
+        : exposedHexMap.neutral;
 
-    // First mix the base depth with the exposed pigment
-    const baseWithPigment = chroma.mix(baseHex, exposedHex, 0.4, "lab");
-    // Then mix the dye tone on top
-    const finalHex = chroma.mix(baseWithPigment, targetToneHex, 0.6, "lab").hex();
+    // Step 1: lock depth to the natural level, not the dye
+    const baseLab = chroma(safeBase).lab();
+    const targetLab = chroma(safeTarget).lab();
+    const depthL = baseLab[0] * 0.7 + targetLab[0] * 0.3;
 
-    return finalHex;
+    // Step 2: mix underlying warmth into the base (what bleach / lift reveals)
+    const baseWithPigment = chroma.mix(safeBase, exposedHex, 0.5, "lab");
+
+    // Step 3: lay the dye tone on top, keeping some of that warmth
+    let withTone = chroma.mix(baseWithPigment, safeTarget, 0.65, "lab");
+
+    // Step 4: re-anchor lightness to the level and nudge saturation for depth
+    withTone = withTone.set("lab.l", depthL).saturate(0.5);
+
+    return withTone.hex();
 }
 
 export function simulateResult(hairState: HairState, dyeInput: DyeInput) {
@@ -90,8 +102,7 @@ export function simulateResult(hairState: HairState, dyeInput: DyeInput) {
     let beforeHex = startBaseHex;
 
     if (TONE_HEX[hairState.currentUndertone]) {
-        beforeHex = blendTones(startBaseHex, "neutral", TONE_HEX[hairState.currentUndertone]);
-    } else {
+        beforeHex = blendTones(startBaseHex, hairState.currentUndertone, TONE_HEX.neutral);
     }
 
     const targetBaseHex = BASE_LEVEL_HEX[liftResult.achievableLevel] || "#121212";

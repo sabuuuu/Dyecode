@@ -70,7 +70,7 @@ export function SimulatorStepTwo({
               You are here
             </div>
             <Slider
-              defaultValue={[targetLevel]}
+              value={[targetLevel]}
               max={10}
               min={1}
               step={1}
