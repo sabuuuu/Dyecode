@@ -8,9 +8,18 @@ import { cn } from "@/lib/utils";
 import { ExportActions } from "../shared/ExportActions";
 import { AddLayerForm } from "../forms/AddLayerForm";
 import { DyecodeLogo } from "../shared/DyecodeLogo";
+import { canHandleProcess } from "@/engine/damage";
+import { AlertCircle, ShieldAlert } from "lucide-react";
+import { ShoppingList } from "../shared/ShoppingList";
+import { ProcessTimeline } from "../timeline/ProcessTimeline";
+import { getSafetyWarnings, calculateDifficulty } from "@/engine/safety";
+import { SafetyWarnings } from "../shared/SafetyWarnings";
+import { FadingSimulator } from "../timeline/FadingSimulator";
+import { checkSkinToneCompatibility } from "@/engine/skinToneMatch";
+import { Sparkles } from "lucide-react";
 
 export function InteractiveResult() {
-    const { result, colorHistory, reset, bleachProgression } = useHairStore();
+    const { result, colorHistory, reset, bleachProgression, hairState, dyeInput } = useHairStore();
     const [showLayerControls, setShowLayerControls] = useState(false);
 
     if (result.status !== "success") return null;
@@ -24,6 +33,29 @@ export function InteractiveResult() {
 
     // Warmth calculation mapping
     const warmthPercentage = successResult.warmthScore ? Math.min(Math.round((successResult.warmthScore / 10) * 100), 100) : 0;
+
+    // Safety assessment
+    const safetyWarnings = (hairState && dyeInput)
+        ? getSafetyWarnings(hairState, dyeInput, result)
+        : [];
+
+    const difficulty = (hairState && dyeInput)
+        ? calculateDifficulty(
+            dyeInput.targetLevel - hairState.currentLevel,
+            dyeInput.bleachLifts || 0,
+            hairState.damageLevel,
+            hairState.chemicalHistory.length > 0
+        )
+        : null;
+
+    const skinMatch = (hairState && hairState.skinDepth && hairState.skinUndertone)
+        ? checkSkinToneCompatibility(
+            hairState.skinDepth,
+            hairState.skinUndertone,
+            successResult.achievableLevel,
+            dyeInput?.targetTone || "neutral"
+        )
+        : null;
 
     // Setup journey steps
     const journeyBlocks = [];
@@ -79,6 +111,11 @@ export function InteractiveResult() {
 
             <main className="flex-1 flex flex-col items-center max-w-5xl mx-auto w-full px-4 sm:px-8 pb-12 overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pt-8">
 
+                {/* Safety Alerts */}
+                <div className="w-full mb-8">
+                    <SafetyWarnings warnings={safetyWarnings} />
+                </div>
+
                 {/* Result Split View */}
                 <section className="w-full relative bg-white dark:bg-zinc-900 rounded-[24px] shadow-sm border border-zinc-200 dark:border-white/5 overflow-hidden mb-6 min-h-[400px] flex flex-col md:flex-row">
                     <div className="flex-1 relative flex flex-col items-center justify-center p-8 border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800">
@@ -112,6 +149,36 @@ export function InteractiveResult() {
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: successResult.exposedPigment === 'red' ? '#dc2626' : successResult.exposedPigment === 'orange' ? '#ea580c' : successResult.exposedPigment === 'yellow' ? '#eab308' : '#737373' }}></div>
                     </div>
 
+                    {difficulty && (
+                        <div
+                            className="flex items-center gap-3 px-5 py-3 bg-white dark:bg-zinc-900 rounded-[12px] border border-zinc-200 dark:border-zinc-800/50 shadow-sm group relative cursor-help"
+                            title={difficulty.description}
+                        >
+                            <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Difficulty</span>
+                            <div className={cn("px-2 py-0.5 rounded-md text-[10px] font-black text-white uppercase", difficulty.color)}>
+                                {difficulty.level}
+                            </div>
+                        </div>
+                    )}
+
+                    {skinMatch && (
+                        <div
+                            className={cn(
+                                "flex items-center gap-3 px-5 py-3 rounded-[12px] border shadow-sm group relative cursor-help",
+                                skinMatch.compatible
+                                    ? "bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800/50"
+                                    : "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/50"
+                            )}
+                            title={skinMatch.message}
+                        >
+                            <Sparkles className={cn("w-4 h-4", skinMatch.compatible ? "text-[#f49d25]" : "text-amber-600")} />
+                            <span className="text-xs font-bold text-zinc-500 uppercase tracking-[0.15em]">Visual Fit</span>
+                            <span className={cn("text-[10px] font-black uppercase", skinMatch.compatible ? "text-zinc-900 dark:text-zinc-100" : "text-amber-700 dark:text-amber-400")}>
+                                {skinMatch.compatible ? "Great Match" : "Clash Warning"}
+                            </span>
+                        </div>
+                    )}
+
                     {successResult.warmthLevel && successResult.warmthLevel !== "none" && (
                         <div className="flex items-center gap-4 px-5 py-3 bg-red-50 dark:bg-red-950/20 rounded-[12px] border border-red-200 dark:border-red-900/50">
                             <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
@@ -138,6 +205,28 @@ export function InteractiveResult() {
                     </div>
                 )}
 
+
+                {/* Shopping List Section */}
+                <div className="w-full max-w-5xl mb-16 flex justify-center">
+                    {hairState && <ShoppingList result={successResult} hairState={hairState} />}
+                </div>
+
+                {/* Process Timeline & Instructions */}
+                <div className="w-full max-w-5xl mb-16 flex justify-center">
+                    {hairState && dyeInput && <ProcessTimeline result={successResult} hairState={hairState} dyeInput={dyeInput} />}
+                </div>
+
+                {/* Fading Prediction */}
+                <div className="w-full max-w-5xl mb-16 flex justify-center">
+                    {hairState && (
+                        <FadingSimulator
+                            initialHex={afterHex}
+                            initialLevel={level}
+                            tone={dyeInput?.targetTone || "neutral"}
+                            porosity={hairState.porosity}
+                        />
+                    )}
+                </div>
 
                 {/* Color Journey Timeline */}
                 <div className="w-full max-w-4xl mb-16 px-4">

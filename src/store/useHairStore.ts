@@ -44,8 +44,8 @@ export const useHairStore = create<HairStore>((set, get) => ({
         set({ result, colorHistory: [result], bleachProgression });
     },
     addLayer: (nextDyeInput: DyeInput) => {
-        const { result, colorHistory } = get();
-        if (result.status !== "success") return;
+        const { result, colorHistory, hairState: currentFullHairState } = get();
+        if (result.status !== "success" || !currentFullHairState) return;
 
         const mappedUndertones = ["red", "red-orange", "orange", "orange-yellow", "yellow", "neutral"];
         const nextUndertone = mappedUndertones.includes(result.exposedPigment)
@@ -61,6 +61,11 @@ export const useHairStore = create<HairStore>((set, get) => ({
             currentLevel: result.achievableLevel,
             currentUndertone: nextUndertone,
             hairHistory: newHistory,
+            porosity: currentFullHairState.porosity,
+            damageLevel: currentFullHairState.damageLevel,
+            chemicalHistory: currentFullHairState.chemicalHistory,
+            hairLength: currentFullHairState.hairLength,
+            hairThickness: currentFullHairState.hairThickness,
         };
 
         const engineResult = simulateResult(newHairState, nextDyeInput);

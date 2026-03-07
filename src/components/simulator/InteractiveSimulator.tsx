@@ -3,6 +3,7 @@
 import { useHairStore } from "@/store/useHairStore";
 import { HelpCircle, User } from "lucide-react";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -11,35 +12,83 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { SimulatorStepZero } from "./SimulatorStepZero";
 import { SimulatorResults } from "./SimulatorResults";
 import { SimulatorStepOne } from "./SimulatorStepOne";
 import { SimulatorStepTwo } from "./SimulatorStepTwo";
 import { DyecodeLogo } from "../shared/DyecodeLogo";
+import { SafetyCheckModal } from "../shared/SafetyCheckModal";
+import type {
+  PorosityLevel,
+  DamageLevel,
+  HairLength,
+  HairThickness,
+  HairHistory
+} from "@/types";
 
 export function InteractiveSimulator() {
   const { setHairState, setDyeInput, runSimulation } = useHairStore();
 
-  const [step, setStep] = useState<number>(1);
+  const [step, setStep] = useState<number>(0);
 
+  // Step 0 - Porosity
+  const [porosity, setPorosity] = useState<PorosityLevel>("normal");
+
+  // Step 1 - Current State
   const [draftLevel, setDraftLevel] = useState<number>(5);
   const [draftUndertone, setDraftUndertone] = useState<string>("red-orange");
-  const [draftHistory, setDraftHistory] = useState<
-    "virgin" | "dyed-darker" | "dyed-lighter"
-  >("virgin");
+  const [draftHistory, setDraftHistory] = useState<HairHistory>("virgin");
+  const [draftDamage, setDraftDamage] = useState<DamageLevel>(0);
+  const [draftChemicalHistory, setDraftChemicalHistory] = useState<string[]>([]);
+  const [draftLength, setDraftLength] = useState<HairLength>("medium");
+  const [draftThickness, setDraftThickness] = useState<HairThickness>("medium");
+  const [draftSkinDepth, setDraftSkinDepth] = useState<string | undefined>();
+  const [draftSkinUndertone, setDraftSkinUndertone] = useState<string | undefined>();
 
+  // Step 2 - Target Goal
   const [targetLevel, setTargetLevel] = useState<number>(6);
   const [targetTone, setTargetTone] = useState<string>("ash");
   const [bleachEnabled, setBleachEnabled] = useState<boolean>(false);
   const [bleachLifts, setBleachLifts] = useState<number>(1);
 
-  const handleNext = () => setStep(2);
-  const handleBack = () => setStep(1);
+  const [hasAcknowledgedSafety, setHasAcknowledgedSafety] = useState<boolean>(false);
+  const [showSafetyModal, setShowSafetyModal] = useState<boolean>(false);
+
+  const handleNext = () => setStep((s) => s + 1);
+  const handleBack = () => setStep((s) => s - 1);
+
+  const handlePorosityComplete = (p: PorosityLevel) => {
+    setPorosity(p);
+    handleNext();
+  };
 
   const handleSimulate = () => {
+    if (!hasAcknowledgedSafety) {
+      setShowSafetyModal(true);
+      return;
+    }
+
+    performSimulation();
+  };
+
+  const handleSafetyConfirm = () => {
+    setHasAcknowledgedSafety(true);
+    setShowSafetyModal(false);
+    performSimulation();
+  };
+
+  const performSimulation = () => {
     setHairState({
       currentLevel: draftLevel,
       currentUndertone: draftUndertone as any,
       hairHistory: draftHistory,
+      porosity,
+      damageLevel: draftDamage,
+      chemicalHistory: draftChemicalHistory,
+      hairLength: draftLength,
+      hairThickness: draftThickness,
+      skinDepth: draftSkinDepth as any,
+      skinUndertone: draftSkinUndertone as any,
     });
     setDyeInput({
       targetLevel,
@@ -100,17 +149,36 @@ export function InteractiveSimulator() {
           targetTone={targetTone}
         />
 
-        {step === 1 ? (
+        {step === 0 && (
+          <SimulatorStepZero onComplete={handlePorosityComplete} />
+        )}
+
+        {step === 1 && (
           <SimulatorStepOne
             draftLevel={draftLevel}
             draftUndertone={draftUndertone}
             draftHistory={draftHistory}
+            draftDamage={draftDamage}
+            draftChemicalHistory={draftChemicalHistory}
+            draftLength={draftLength}
+            draftThickness={draftThickness}
             onChangeLevel={setDraftLevel}
             onChangeUndertone={setDraftUndertone}
             onChangeHistory={setDraftHistory}
+            onChangeDamage={setDraftDamage}
+            onChangeChemicalHistory={setDraftChemicalHistory}
+            onChangeLength={setDraftLength}
+            onChangeThickness={setDraftThickness}
+            draftSkinDepth={draftSkinDepth}
+            draftSkinUndertone={draftSkinUndertone}
+            onChangeSkinDepth={setDraftSkinDepth}
+            onChangeSkinUndertone={setDraftSkinUndertone}
             onNext={handleNext}
+            onBack={handleBack}
           />
-        ) : (
+        )}
+
+        {step === 2 && (
           <SimulatorStepTwo
             targetLevel={targetLevel}
             targetTone={targetTone}
@@ -127,10 +195,15 @@ export function InteractiveSimulator() {
       </main>
 
       <div className="absolute bottom-6 left-6 flex gap-2 z-10">
-        <div className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-800" />
-        <div className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-800" />
-        <div className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-[#f49d25]" />
+        <div className={cn("w-1.5 h-1.5 rounded-full transition-colors", step === 0 ? "bg-zinc-900 dark:bg-[#f49d25]" : "bg-zinc-300 dark:bg-zinc-800")} />
+        <div className={cn("w-1.5 h-1.5 rounded-full transition-colors", step === 1 ? "bg-zinc-900 dark:bg-[#f49d25]" : "bg-zinc-300 dark:bg-zinc-800")} />
+        <div className={cn("w-1.5 h-1.5 rounded-full transition-colors", step === 2 ? "bg-zinc-900 dark:bg-[#f49d25]" : "bg-zinc-300 dark:bg-zinc-800")} />
       </div>
+
+      <SafetyCheckModal
+        isOpen={showSafetyModal}
+        onConfirm={handleSafetyConfirm}
+      />
     </div>
   );
 }
