@@ -19,6 +19,11 @@ export function HairInputForm() {
             currentLevel: 5,
             currentUndertone: "red-orange",
             hairHistory: "virgin",
+            porosity: "normal",
+            damageLevel: 0,
+            chemicalHistory: [],
+            hairLength: "medium",
+            hairThickness: "medium",
             targetLevel: 6,
             targetTone: "ash",
             bleachEnabled: false,
@@ -32,6 +37,11 @@ export function HairInputForm() {
             currentLevel: data.currentLevel,
             currentUndertone: data.currentUndertone,
             hairHistory: data.hairHistory,
+            porosity: data.porosity,
+            damageLevel: data.damageLevel,
+            chemicalHistory: data.chemicalHistory,
+            hairLength: data.hairLength,
+            hairThickness: data.hairThickness,
         });
         setDyeInput({
             targetLevel: data.targetLevel,

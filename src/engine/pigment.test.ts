@@ -40,6 +40,11 @@ describe("Pigment Engine", () => {
                 currentLevel: 6,
                 currentUndertone: "orange",
                 hairHistory: "virgin",
+                porosity: "normal",
+                damageLevel: 0,
+                chemicalHistory: [],
+                hairLength: "medium",
+                hairThickness: "medium",
             };
             const input: DyeInput = {
                 targetLevel: 8,
@@ -59,6 +64,11 @@ describe("Pigment Engine", () => {
                 currentLevel: 5,
                 currentUndertone: "red-orange",
                 hairHistory: "dyed-darker",
+                porosity: "normal",
+                damageLevel: 0,
+                chemicalHistory: [],
+                hairLength: "medium",
+                hairThickness: "medium",
             };
             const input: DyeInput = {
                 targetLevel: 7,

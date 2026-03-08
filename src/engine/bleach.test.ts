@@ -4,14 +4,32 @@ import { HairState, DyeInput } from "../types";
 
 describe("Bleach Simulator", () => {
     it("returns empty array if bleach is disabled", () => {
-        const hairState: HairState = { currentLevel: 4, currentUndertone: "red", hairHistory: "virgin" };
+        const hairState: HairState = {
+            currentLevel: 4,
+            currentUndertone: "red",
+            hairHistory: "virgin",
+            porosity: "normal",
+            damageLevel: 0,
+            chemicalHistory: [],
+            hairLength: "medium",
+            hairThickness: "medium",
+        };
         const dyeInput: DyeInput = { targetLevel: 8, targetTone: "ash", bleachEnabled: false };
         const progression = bleachLiftProgression(hairState, dyeInput);
         expect(progression).toHaveLength(0);
     });
 
     it("returns 3 steps with increasing achievable levels", () => {
-        const hairState: HairState = { currentLevel: 3, currentUndertone: "red", hairHistory: "virgin" };
+        const hairState: HairState = {
+            currentLevel: 3,
+            currentUndertone: "red",
+            hairHistory: "virgin",
+            porosity: "normal",
+            damageLevel: 0,
+            chemicalHistory: [],
+            hairLength: "medium",
+            hairThickness: "medium",
+        };
         // 2 lifts per session
         const dyeInput: DyeInput = { targetLevel: 10, targetTone: "ash", bleachEnabled: true, bleachLifts: 2 };
 
@@ -37,7 +55,16 @@ describe("Bleach Simulator", () => {
     });
 
     it("caps at level 10", () => {
-        const hairState: HairState = { currentLevel: 8, currentUndertone: "yellow", hairHistory: "virgin" };
+        const hairState: HairState = {
+            currentLevel: 8,
+            currentUndertone: "yellow",
+            hairHistory: "virgin",
+            porosity: "normal",
+            damageLevel: 0,
+            chemicalHistory: [],
+            hairLength: "medium",
+            hairThickness: "medium",
+        };
         const dyeInput: DyeInput = { targetLevel: 10, targetTone: "neutral", bleachEnabled: true, bleachLifts: 3 };
         const progression = bleachLiftProgression(hairState, dyeInput);
 
