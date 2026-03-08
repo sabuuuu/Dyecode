@@ -190,11 +190,9 @@ The engine calculates:
 - [x] Shopping list with shade codes
 - [x] Color longevity simulator
 - [x] Realistic hair strand preview
-- [ ] Export results as image
-- [ ] Shareable URL with encoded state
-- [ ] Skin tone compatibility checker (in progress)
-- [ ] Multi-language support
-- [ ] Mobile app version
+- [x] Export results as image
+- [x] Shareable URL with encoded state
+- [x] Mobile app version
 
 ---
 
@@ -222,15 +220,6 @@ MIT License - feel free to use this for your own projects!
 As someone who's had their fair share of hair color disasters, I wanted a tool that shows realistic expectations—not the fantasy on the box. Dyecode is built on actual color theory and chemistry, not marketing promises.
 
 **The goal**: Help people avoid expensive salon corrections and damaged hair by showing them what will ACTUALLY happen before they commit.
-
----
-
-## 🙏 Acknowledgments
-
-- Color theory based on professional cosmetology education
-- Pigment science from hair chemistry research
-- UI/UX inspired by modern design tools
-- Built with love for everyone who's ever said "it'll be fine" before a DIY dye job
 
 ---
 
