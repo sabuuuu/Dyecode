@@ -87,7 +87,7 @@ export function blendTones(baseHex: string, exposedPigmentStr: string, targetTon
 }
 
 export function simulateResult(hairState: HairState, dyeInput: DyeInput) {
-    const { currentLevel, hairHistory } = hairState;
+    const { currentLevel, currentUndertone, hairHistory } = hairState;
     const { targetLevel, targetTone, bleachEnabled, bleachLifts } = dyeInput;
 
     const liftResult = simulateLift(
@@ -98,17 +98,11 @@ export function simulateResult(hairState: HairState, dyeInput: DyeInput) {
         bleachLifts || 0
     );
 
-    const startBaseHex = BASE_LEVEL_HEX[currentLevel] || "#121212";
-    let beforeHex = startBaseHex;
+    // Use the user's chosen starting color directly - don't blend it
+    const beforeHex = TONE_HEX[currentUndertone] || BASE_LEVEL_HEX[currentLevel] || "#121212";
 
-    if (TONE_HEX[hairState.currentUndertone]) {
-        beforeHex = blendTones(startBaseHex, hairState.currentUndertone, TONE_HEX.neutral);
-    }
-
-    const targetBaseHex = BASE_LEVEL_HEX[liftResult.achievableLevel] || "#121212";
-
-    const toneHex = TONE_HEX[targetTone] || TONE_HEX.neutral;
-    const afterHex = blendTones(targetBaseHex, liftResult.exposedPigment, toneHex);
+    // Use the user's chosen target color directly - don't blend it
+    const afterHex = TONE_HEX[targetTone] || BASE_LEVEL_HEX[liftResult.achievableLevel] || "#121212";
 
     const warnings: string[] = [];
     if (liftResult.warning) {

@@ -333,19 +333,37 @@ export function SimulatorStepOne({
             <label className="text-sm font-bold text-zinc-900 dark:text-zinc-200">
               Skin Depth
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              {["fair", "light", "medium", "tan", "deep", "dark"].map((d) => (
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { value: "fair", label: "Fair", color: "#fde4d0" },
+                { value: "light", label: "Light", color: "#f5d5b8" },
+                { value: "medium", label: "Medium", color: "#d9b89a" },
+                { value: "tan", label: "Tan", color: "#c19a6b" },
+                { value: "deep", label: "Deep", color: "#8d5524" },
+                { value: "dark", label: "Dark", color: "#5c3317" }
+              ].map((d) => (
                 <button
-                  key={d}
-                  onClick={() => onChangeSkinDepth(d)}
+                  key={d.value}
+                  onClick={() => onChangeSkinDepth(d.value)}
                   className={cn(
-                    "py-2 rounded-xl border text-[10px] font-bold uppercase transition-all",
-                    draftSkinDepth === d
-                      ? "bg-zinc-100 dark:bg-zinc-900 border-zinc-900 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100"
-                      : "bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 text-zinc-500"
+                    "flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all",
+                    draftSkinDepth === d.value
+                      ? "bg-zinc-100 dark:bg-zinc-900 border-zinc-900 dark:border-zinc-700 shadow-sm"
+                      : "bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300"
                   )}
                 >
-                  {d}
+                  <div 
+                    className="w-8 h-8 rounded-full border-2 border-white dark:border-zinc-800 shadow-sm"
+                    style={{ backgroundColor: d.color }}
+                  />
+                  <span className={cn(
+                    "text-[10px] font-bold uppercase",
+                    draftSkinDepth === d.value
+                      ? "text-zinc-900 dark:text-zinc-100"
+                      : "text-zinc-500"
+                  )}>
+                    {d.label}
+                  </span>
                 </button>
               ))}
             </div>
@@ -355,19 +373,40 @@ export function SimulatorStepOne({
             <label className="text-sm font-bold text-zinc-900 dark:text-zinc-200">
               Complexion Undertone
             </label>
-            <div className="flex gap-2">
-              {["cool", "neutral", "warm"].map((u) => (
+            <p className="text-[10px] text-zinc-500 leading-relaxed mb-3">
+              Not sure? Check your wrist veins: Blue/purple = cool, Green = warm, Both = neutral
+            </p>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { value: "cool", label: "Cool", color: "#e8b4d4", description: "Pink/Blue tones" },
+                { value: "neutral", label: "Neutral", color: "#e8d4b4", description: "Balanced" },
+                { value: "warm", label: "Warm", color: "#e8c4a4", description: "Yellow/Golden" }
+              ].map((u) => (
                 <button
-                  key={u}
-                  onClick={() => onChangeSkinUndertone(u)}
+                  key={u.value}
+                  onClick={() => onChangeSkinUndertone(u.value)}
                   className={cn(
-                    "flex-1 py-2 rounded-xl border text-[10px] font-bold uppercase transition-all",
-                    draftSkinUndertone === u
-                      ? "bg-zinc-100 dark:bg-zinc-900 border-zinc-900 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100"
-                      : "bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 text-zinc-500"
+                    "flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all",
+                    draftSkinUndertone === u.value
+                      ? "bg-zinc-100 dark:bg-zinc-900 border-zinc-900 dark:border-zinc-700 shadow-sm"
+                      : "bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300"
                   )}
                 >
-                  {u}
+                  <div 
+                    className="w-8 h-8 rounded-full border-2 border-white dark:border-zinc-800 shadow-sm"
+                    style={{ backgroundColor: u.color }}
+                  />
+                  <div className="text-center">
+                    <span className={cn(
+                      "text-[10px] font-bold uppercase block",
+                      draftSkinUndertone === u.value
+                        ? "text-zinc-900 dark:text-zinc-100"
+                        : "text-zinc-500"
+                    )}>
+                      {u.label}
+                    </span>
+                    <span className="text-[9px] text-zinc-400">{u.description}</span>
+                  </div>
                 </button>
               ))}
             </div>
@@ -376,7 +415,7 @@ export function SimulatorStepOne({
 
         <div className="flex-1" />
 
-        <div className="flex justify-between items-center pt-12 pb-4">
+        <div className="flex justify-between items-center pb-4">
           <button
             onClick={onBack}
             className="text-xs font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"

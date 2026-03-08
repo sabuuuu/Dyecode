@@ -2,8 +2,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { generateTimeline, getTotalTimeEstimate, getTotalCostEstimate } from "@/engine/timeline";
 import { getApplicationInstructions, getMaintenanceSchedule } from "@/data/instructions";
 import type { HairState, DyeInput, SimulationResult } from "@/types";
-import { Calendar, Clock, Info, ShieldCheck, AlertCircle } from "lucide-react";
+import { Calendar, Clock, Info, ShieldCheck, AlertCircle, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// Helper to calculate actual calendar date
+function getCalendarDate(weeksFromNow: number): string {
+    const date = new Date();
+    date.setDate(date.getDate() + (weeksFromNow * 7));
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
 
 interface Props {
     hairState: HairState;
@@ -33,9 +40,12 @@ export function ProcessTimeline({ hairState, dyeInput, result }: Props) {
 
     const totalTime = getTotalTimeEstimate(timeline);
     const totalCost = getTotalCostEstimate(timeline);
+    
+    // Calculate progress percentage for visual bar
+    const totalWeeks = timeline[timeline.length - 1]?.weekFromStart || 0;
 
     return (
-        <div className="w-full max-w-4xl space-y-12">
+        <div className="w-full   space-y-12">
             {/* 1. Journey Roadmap */}
             <Card className="border-zinc-200 dark:border-white/5 shadow-sm rounded-[24px]">
                 <CardHeader className="bg-zinc-50 dark:bg-white/5 border-b border-zinc-200 dark:border-white/5 px-8 py-6">
@@ -58,45 +68,61 @@ export function ProcessTimeline({ hairState, dyeInput, result }: Props) {
                     </div>
                 </CardHeader>
                 <CardContent className="p-8">
-                    <div className="space-y-10">
-                        {timeline.map((step, i) => (
-                            <div key={i} className="flex gap-6 relative group">
-                                {/* Vertical Line */}
-                                {i < timeline.length - 1 && (
-                                    <div className="absolute top-[40px] left-[19.5px] w-0.5 h-[calc(100%+20px)] bg-zinc-100 dark:bg-white/5 group-hover:bg-[#f49d25]/20 transition-colors" />
-                                )}
-
-                                {/* Step Marker */}
-                                <div className="flex flex-col items-center shrink-0">
-                                    <div className={cn(
-                                        "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm z-10 border-4 border-white dark:border-zinc-900 transition-colors",
-                                        step.action.includes("Recovery")
-                                            ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"
-                                            : "bg-[#f49d25] text-white"
+                    <div className="relative">
+                        {/* Center vertical line */}
+                        <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-zinc-100 dark:bg-white/5 -translate-x-1/2" />
+                        
+                        <div className="space-y-16">
+                            {timeline.map((step, i) => {
+                                const isEven = i % 2 === 0;
+                                return (
+                                    <div key={i} className={cn(
+                                        "relative flex items-center",
+                                        isEven ? "justify-start" : "justify-end"
                                     )}>
-                                        {step.session}
-                                    </div>
-                                </div>
-
-                                <div className="flex-1 pb-4">
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
-                                        <h4 className="font-bold text-zinc-900 dark:text-zinc-100">{step.action}</h4>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-[#f49d25] bg-[#f49d25]/10 px-2 py-0.5 rounded">
-                                            {step.weekFromStart === 0 ? "Now" : `Week ${step.weekFromStart}`}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-xs text-zinc-500 mb-3">
-                                        <div className="flex items-center gap-1.5">
-                                            <Clock className="w-3.5 h-3.5" />
-                                            {step.duration}
+                                        {/* Step Marker - centered */}
+                                        <div className="absolute left-1/2 -translate-x-1/2 z-10">
+                                            <div className={cn(
+                                                "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-4 border-white dark:border-zinc-900 transition-colors",
+                                                step.action.includes("Recovery")
+                                                    ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"
+                                                    : "bg-[#f49d25] text-white"
+                                            )}>
+                                                {step.session}
+                                            </div>
                                         </div>
-                                        <div className="w-1 h-1 rounded-full bg-zinc-300" />
-                                        <div>${step.cost.toFixed(2)}</div>
+
+                                        {/* Content card */}
+                                        <div className={cn(
+                                            "w-[calc(50%-40px)] p-6 rounded-2xl border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-900/50 shadow-sm hover:shadow-md transition-shadow",
+                                            isEven ? "mr-auto" : "ml-auto"
+                                        )}>
+                                            <div className="flex flex-col gap-1 mb-2">
+                                                <h4 className="font-bold text-zinc-900 dark:text-zinc-100">{step.action}</h4>
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-[#f49d25] bg-[#f49d25]/10 px-2 py-0.5 rounded">
+                                                        {step.weekFromStart === 0 ? "Now" : `Week ${step.weekFromStart}`}
+                                                    </span>
+                                                    <span className="text-[9px] text-zinc-400 flex items-center gap-1">
+                                                        <CalendarDays className="w-3 h-3" />
+                                                        {getCalendarDate(step.weekFromStart)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3 text-xs text-zinc-500 mb-3">
+                                                <div className="flex items-center gap-1.5">
+                                                    <Clock className="w-3.5 h-3.5" />
+                                                    {step.duration}
+                                                </div>
+                                                <div className="w-1 h-1 rounded-full bg-zinc-300" />
+                                                <div>${step.cost.toFixed(2)}</div>
+                                            </div>
+                                            <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{step.description}</p>
+                                        </div>
                                     </div>
-                                    <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-2xl">{step.description}</p>
-                                </div>
-                            </div>
-                        ))}
+                                );
+                            })}
+                        </div>
                     </div>
                 </CardContent>
             </Card>

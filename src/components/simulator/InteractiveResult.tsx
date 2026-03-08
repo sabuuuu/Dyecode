@@ -57,13 +57,14 @@ export function InteractiveResult() {
         )
         : null;
 
-    // Setup journey steps
+    // Setup journey steps - use actual user input colors
     const journeyBlocks = [];
 
-    // First step is always the starting canvas
-    if (colorHistory.length > 0) {
+    // Starting color should be the user's actual current hair color
+    if (hairState) {
+        const startingHex = successResult.beforeHex || "#3f2010";
         journeyBlocks.push({
-            hex: (colorHistory[0] as typeof successResult).beforeHex || "#000",
+            hex: startingHex,
             icon: "face",
             label: "Start"
         });
@@ -71,21 +72,20 @@ export function InteractiveResult() {
         // Add bleach steps if any
         if (bleachProgression && bleachProgression.length > 0) {
             bleachProgression.forEach((b, i) => {
+                const bleachResult = b as Extract<typeof b, { status: "success" }>;
                 journeyBlocks.push({
-                    hex: (b as typeof successResult).afterHex,
+                    hex: bleachResult.afterHex,
                     icon: "science",
                     label: `Bleach ${i + 1}`
                 });
             });
         }
 
-        // Add dye layers
-        colorHistory.forEach((item, i) => {
-            journeyBlocks.push({
-                hex: (item as typeof successResult).afterHex,
-                icon: "colorize",
-                label: `Color ${i + 1}`
-            });
+        // Final result color
+        journeyBlocks.push({
+            hex: afterHex,
+            icon: "colorize",
+            label: "Final"
         });
     }
 
@@ -192,7 +192,7 @@ export function InteractiveResult() {
 
                 {/* Warnings Section if any */}
                 {successResult.warnings.length > 0 && (
-                    <div className="w-full max-w-2xl mb-16 space-y-3">
+                    <div className="w-full max-w-2xl mb-8 space-y-3">
                         {successResult.warnings.map((warning, idx) => (
                             <div key={idx} className="flex items-start gap-4 p-4 rounded-[16px] bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30">
                                 <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-500 mt-0.5" />
@@ -229,7 +229,7 @@ export function InteractiveResult() {
                 </div>
 
                 {/* Color Journey Timeline */}
-                <div className="w-full max-w-4xl mb-16 px-4">
+                <div className="w-full   mb-16 px-4">
                     <h2 className="text-[10px] font-bold tracking-[0.2em] text-zinc-500 uppercase mb-10 text-center">Your Color Journey</h2>
 
                     <div className="flex items-center justify-between px-2 sm:px-12 relative">

@@ -75,8 +75,8 @@ export function SafetyCheckModal({ isOpen, onConfirm }: Props) {
 
 function CheckItem({ id, label, checked, onChange }: { id: string, label: string, checked: boolean, onChange: (v: boolean) => void }) {
     return (
-        <div className="flex items-start space-x-3 p-3 rounded-xl hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors">
-            <Checkbox id={id} checked={checked} onCheckedChange={(v) => onChange(!!v)} className="mt-1" />
+        <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors">
+            <Checkbox id={id} checked={checked} onCheckedChange={(v) => onChange(!!v)} />
             <label htmlFor={id} className="text-[12px] leading-snug font-medium text-zinc-600 dark:text-zinc-400 cursor-pointer">
                 {label}
             </label>

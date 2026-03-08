@@ -31,6 +31,9 @@ export function predictFading(
     };
 
     const fadeRate = washMultiplier[washFrequency] * porosityMultiplier[porosity];
+    
+    // Determine if this is a light color (level 6+) - these fade faster and lighter
+    const isLightColor = initialLevel >= 6;
 
     const predictions: FadingPrediction[] = [];
 
@@ -42,52 +45,74 @@ export function predictFading(
         description: "Freshly colored"
     });
 
-    // Week 2
-    const week2Fade = fadeRate * 0.15;
+    // Week 2 - slight fading
+    const week2Fade = fadeRate * 0.2;
     predictions.push({
         weeks: 2,
-        hex: adjustFading(initialHex, week2Fade, tone),
-        level: initialLevel,
+        hex: adjustFading(initialHex, week2Fade, tone, isLightColor),
+        level: isLightColor ? Math.min(10, initialLevel + 0.2) : initialLevel,
         description: "Minor vibrancy loss"
     });
 
-    // Week 4
-    const week4Fade = fadeRate * 0.35;
+    // Week 4 - noticeable fading
+    const week4Fade = fadeRate * 0.5;
     predictions.push({
         weeks: 4,
-        hex: adjustFading(initialHex, week4Fade, tone),
-        level: Math.min(10, initialLevel + 0.2), // Fading usually looks slightly lighter
+        hex: adjustFading(initialHex, week4Fade, tone, isLightColor),
+        level: isLightColor ? Math.min(10, initialLevel + 0.5) : Math.min(10, initialLevel + 0.2),
         description: "Visible fading. Toner refresh recommended."
     });
 
-    // Week 8
-    const week8Fade = fadeRate * 0.6;
+    // Week 8 - significant fading
+    const week8Fade = fadeRate * 0.85;
     predictions.push({
         weeks: 8,
-        hex: adjustFading(initialHex, week8Fade, tone),
-        level: Math.min(10, initialLevel + 0.5),
+        hex: adjustFading(initialHex, week8Fade, tone, isLightColor),
+        level: isLightColor ? Math.min(10, initialLevel + 1) : Math.min(10, initialLevel + 0.4),
         description: "Significant fade. Roots visible. Full refresh needed."
     });
 
     return predictions;
 }
 
-function adjustFading(hex: string, amount: number, tone: string): string {
+function adjustFading(hex: string, amount: number, tone: string, isLightColor: boolean): string {
     let color = chroma(hex);
 
-    // Fading usually means:
-    // 1. Loss of saturation
-    // 2. Increasing brightness
-    // 3. Shifting towards the underlying pigment (warmth)
-
-    color = color.desaturate(amount * 1.5);
-    color = color.brighten(amount * 0.5);
-
-    // If the tone is cool, it becomes warmer as it fades
-    if (tone === "ash" || tone === "neutral") {
-        color = chroma.mix(color, "#eab308", amount * 0.3, "rgb"); // Fade towards yellow
-    } else if (tone === "gold" || tone === "copper") {
-        color = chroma.mix(color, "#ea580c", amount * 0.2, "rgb"); // Stay warm but more raw
+    // Light colors (honey brown, blonde, etc.) fade MORE dramatically
+    // Dark colors (burgundy, black, etc.) fade less but still lose vibrancy
+    
+    if (isLightColor) {
+        // Light colors: lose saturation faster, get much lighter, turn brassy
+        color = color.desaturate(amount * 3);
+        color = color.brighten(amount * 1.5);
+        
+        // Light colors become very brassy/yellow as they fade
+        if (tone === "ash" || tone === "neutral" || tone === "pearl" || tone === "silver") {
+            // Cool light tones → brassy yellow
+            color = chroma.mix(color, "#e8c48a", amount * 0.6, "lab");
+        } else if (tone === "gold" || tone === "beige") {
+            // Warm light tones → pale yellow/beige
+            color = chroma.mix(color, "#f0ddb0", amount * 0.5, "lab");
+        } else {
+            // Other light tones → washed out beige
+            color = chroma.mix(color, "#e8d4c0", amount * 0.5, "lab");
+        }
+    } else {
+        // Dark colors: lose saturation but don't get as light, can turn muddy
+        color = color.desaturate(amount * 2);
+        color = color.brighten(amount * 0.8);
+        
+        // Dark colors fade differently based on tone
+        if (tone === "burgundy" || tone === "mahogany" || tone === "red") {
+            // Deep reds → muddy reddish-brown
+            color = chroma.mix(color, "#a67c6d", amount * 0.4, "lab");
+        } else if (tone === "ash" || tone === "neutral") {
+            // Dark cool tones → slightly warm brown
+            color = chroma.mix(color, "#8b7355", amount * 0.35, "lab");
+        } else {
+            // Other dark tones → neutral brown
+            color = chroma.mix(color, "#9a8570", amount * 0.4, "lab");
+        }
     }
 
     return color.hex();

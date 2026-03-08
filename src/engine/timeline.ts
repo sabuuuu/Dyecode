@@ -30,11 +30,13 @@ export function generateTimeline(
         // Break into 2-3 sessions
         const sessions = levelJump > 6 ? 3 : 2;
         const liftsPerSession = Math.ceil(bleachLifts / sessions);
+        
+        let sessionCounter = 1;
 
         for (let i = 0; i < sessions; i++) {
             const isBleach = liftsPerSession > 0;
             timeline.push({
-                session: i + 1,
+                session: sessionCounter++,
                 weekFromStart: i * 6, // 6 weeks between sessions
                 action: isBleach ? `Bleach Session ${i + 1}` : `Lift Session ${i + 1}`,
                 duration: "2-3 hours",
@@ -47,7 +49,7 @@ export function generateTimeline(
             // Recovery phase if not the final session
             if (i < sessions - 1) {
                 timeline.push({
-                    session: i + 1,
+                    session: sessionCounter++,
                     weekFromStart: i * 6 + 1,
                     action: "Recovery Phase",
                     duration: "4-6 weeks",
@@ -59,7 +61,7 @@ export function generateTimeline(
 
         // Final color application
         timeline.push({
-            session: sessions + 1,
+            session: sessionCounter++,
             weekFromStart: sessions * 6,
             action: "Final Color Application",
             duration: "45-60 minutes",
@@ -69,9 +71,10 @@ export function generateTimeline(
 
     } else {
         // Single session
+        let sessionCounter = 1;
         if (bleachLifts > 0) {
             timeline.push({
-                session: 1,
+                session: sessionCounter++,
                 weekFromStart: 0,
                 action: "Bleach + Tone",
                 duration: "3-4 hours",
@@ -81,7 +84,7 @@ export function generateTimeline(
         } else {
             const isDarker = targetLevel < currentLevel;
             timeline.push({
-                session: 1,
+                session: sessionCounter++,
                 weekFromStart: 0,
                 action: isDarker ? "Color Deposit" : "Single Process Color",
                 duration: "45-60 minutes",
@@ -91,17 +94,17 @@ export function generateTimeline(
                     : "Applying color to lift and tone in one step."
             });
         }
+        
+        // Maintenance schedule
+        timeline.push({
+            session: sessionCounter++,
+            weekFromStart: 4,
+            action: "Maintenance & Roots",
+            duration: "1 hour",
+            cost: 15.99,
+            description: "Touch up new growth. Refresh mid-lengths and ends if color has faded."
+        });
     }
-
-    // Maintenance schedule
-    timeline.push({
-        session: timeline.length + 1,
-        weekFromStart: timeline[timeline.length - 1].weekFromStart + 4,
-        action: "Maintenance & Roots",
-        duration: "1 hour",
-        cost: 15.99,
-        description: "Touch up new growth. Refresh mid-lengths and ends if color has faded."
-    });
 
     return timeline;
 }
