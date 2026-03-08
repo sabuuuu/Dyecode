@@ -234,9 +234,6 @@ export function ShoppingList({ result, hairState }: Props) {
                         <p className="text-sm opacity-80">
                             Search for these items at any beauty supply store, drugstore, or online retailer
                         </p>
-                        <p className="text-[10px] font-medium opacity-60 italic">
-                            Popular stores: Sally Beauty, Ulta, Target, Walmart, Amazon
-                        </p>
                     </div>
                 </div>
             </CardContent>

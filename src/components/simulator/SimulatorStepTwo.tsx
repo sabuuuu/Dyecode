@@ -18,12 +18,27 @@ type SimulatorStepTwoProps = {
 };
 
 const targetTones = [
-  "ash", "pearl", "matte", "neutral", "beige",
-  "gold", "copper", "red", "mahogany", "burgundy",
+  { key: "neutral", label: "Natural" },
+  { key: "ash", label: "Ash" },
+  { key: "beige", label: "Beige" },
+  { key: "gold", label: "Golden" },
+  { key: "copper", label: "Copper" },
+  { key: "caramel", label: "Caramel" },
+  { key: "red", label: "Red" },
+  { key: "mahogany", label: "Mahogany" },
+  { key: "burgundy", label: "Burgundy" },
+  { key: "auburn", label: "Auburn" },
 ] as const;
 
 const vividTones = [
-  "blue", "pink", "purple", "green", "teal", "magenta", "silver",
+  { key: "silver", label: "Silver" },
+  { key: "blue", label: "Blue" },
+  { key: "pink", label: "Pink" },
+  { key: "purple", label: "Purple" },
+  { key: "violet", label: "Violet" },
+  { key: "green", label: "Green" },
+  { key: "teal", label: "Teal" },
+  { key: "magenta", label: "Magenta" },
 ] as const;
 
 export function SimulatorStepTwo({
@@ -110,42 +125,58 @@ export function SimulatorStepTwo({
               <div className="space-y-6">
                 {/* Naturals Section */}
                 <div>
-                  <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3">Naturals & Warm</h3>
-                  <div className="grid grid-cols-5 gap-3">
+                  <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3">Natural & Warm Tones</h3>
+                  <div className="grid grid-cols-5 gap-2">
                     {targetTones.map((tone) => (
                       <button
-                        key={tone}
-                        onClick={() => onChangeTargetTone(tone)}
-                        title={tone}
+                        key={tone.key}
+                        onClick={() => onChangeTargetTone(tone.key)}
+                        title={tone.label}
                         className={cn(
-                          "w-10 h-10 rounded-full shadow-sm transition-transform hover:scale-110 focus:outline-none",
-                          targetTone === tone 
-                            ? "ring-2 ring-offset-2 ring-zinc-900 dark:ring-white dark:ring-offset-zinc-950" 
-                            : "border border-black/10 dark:border-white/10"
+                          "flex flex-col items-center gap-1 p-1 rounded-lg transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900",
+                          targetTone === tone.key && "bg-zinc-100 dark:bg-zinc-900"
                         )}
-                        style={{ backgroundColor: TONE_HEX[tone] || "#ccc" }}
-                      />
+                      >
+                        <div
+                          className={cn(
+                            "w-9 h-9 rounded-full shadow-sm transition-transform hover:scale-110",
+                            targetTone === tone.key 
+                              ? "ring-2 ring-zinc-900 dark:ring-white scale-110" 
+                              : "border border-zinc-200 dark:border-zinc-800"
+                          )}
+                          style={{ backgroundColor: TONE_HEX[tone.key] || "#8b7355" }}
+                        />
+                        <span className="text-[8px] font-bold text-zinc-500 text-center leading-tight">{tone.label}</span>
+                      </button>
                     ))}
                   </div>
                 </div>
 
                 {/* Vivids Section */}
                 <div>
-                  <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">Vivids & Direct Dyes</h3>
-                  <div className="grid grid-cols-5 gap-3">
+                  <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">Fashion Colors</h3>
+                  <div className="grid grid-cols-5 gap-2">
                     {vividTones.map((tone) => (
                       <button
-                        key={tone}
-                        onClick={() => onChangeTargetTone(tone)}
-                        title={tone}
+                        key={tone.key}
+                        onClick={() => onChangeTargetTone(tone.key)}
+                        title={tone.label}
                         className={cn(
-                          "w-10 h-10 rounded-full shadow-sm transition-transform hover:scale-110 focus:outline-none",
-                          targetTone === tone 
-                            ? "ring-2 ring-offset-2 ring-zinc-900 dark:ring-white dark:ring-offset-zinc-950" 
-                            : "border border-black/10 dark:border-white/10"
+                          "flex flex-col items-center gap-1 p-1 rounded-lg transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900",
+                          targetTone === tone.key && "bg-zinc-100 dark:bg-zinc-900"
                         )}
-                        style={{ backgroundColor: TONE_HEX[tone] || "#ccc" }}
-                      />
+                      >
+                        <div
+                          className={cn(
+                            "w-9 h-9 rounded-full shadow-sm transition-transform hover:scale-110",
+                            targetTone === tone.key 
+                              ? "ring-2 ring-zinc-900 dark:ring-white scale-110" 
+                              : "border border-zinc-200 dark:border-zinc-800"
+                          )}
+                          style={{ backgroundColor: TONE_HEX[tone.key] || "#8b7355" }}
+                        />
+                        <span className="text-[8px] font-bold text-zinc-500 text-center leading-tight">{tone.label}</span>
+                      </button>
                     ))}
                   </div>
                 </div>

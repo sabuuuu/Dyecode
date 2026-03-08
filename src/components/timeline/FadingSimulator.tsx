@@ -17,6 +17,15 @@ export function FadingSimulator({ initialHex, initialLevel, tone, porosity }: Pr
 
     const predictions = predictFading(initialHex, initialLevel, tone, porosity, washFrequency);
     
+    console.log("=== COLOR LONGEVITY DEBUG ===");
+    console.log("Initial color:", initialHex, "Level:", initialLevel, "Tone:", tone);
+    console.log("Porosity:", porosity, "Wash frequency:", washFrequency);
+    console.log("Predictions:");
+    predictions.forEach((p, i) => {
+        console.log(`  Week ${p.weeks}: ${p.hex} - ${p.description}`);
+    });
+    console.log("=== END COLOR LONGEVITY ===\n");
+    
     // Calculate fade percentage
     const getFadePercentage = (weekIndex: number) => {
         return Math.min(100, (weekIndex / (predictions.length - 1)) * 100);

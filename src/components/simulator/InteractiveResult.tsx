@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { ExportActions } from "../shared/ExportActions";
 import { AddLayerForm } from "../forms/AddLayerForm";
 import { DyecodeLogo } from "../shared/DyecodeLogo";
-import { canHandleProcess } from "@/engine/damage";
 import { AlertCircle, ShieldAlert } from "lucide-react";
 import { ShoppingList } from "../shared/ShoppingList";
 import { ProcessTimeline } from "../timeline/ProcessTimeline";
@@ -17,6 +16,17 @@ import { SafetyWarnings } from "../shared/SafetyWarnings";
 import { FadingSimulator } from "../timeline/FadingSimulator";
 import { checkSkinToneCompatibility } from "@/engine/skinToneMatch";
 import { Sparkles } from "lucide-react";
+import { TONE_HEX } from "@/engine/constants";
+import chroma from "chroma-js";
+
+// Helper function to adjust color lightness for a specific level
+function adjustColorForLevel(colorHex: string, level: number): string {
+    const lightnessMap: Record<number, number> = {
+        1: 15, 2: 20, 3: 28, 4: 35, 5: 42, 6: 50, 7: 58, 8: 68, 9: 78, 10: 88
+    };
+    const targetLightness = lightnessMap[level] || 50;
+    return chroma(colorHex).set('lab.l', targetLightness).hex();
+}
 
 export function InteractiveResult() {
     const { result, colorHistory, reset, bleachProgression, hairState, dyeInput } = useHairStore();
@@ -57,36 +67,53 @@ export function InteractiveResult() {
         )
         : null;
 
-    // Setup journey steps - use actual user input colors
+    // Setup journey steps - show realistic path from start to goal
     const journeyBlocks = [];
 
-    // Starting color should be the user's actual current hair color
-    if (hairState) {
+    if (hairState && dyeInput) {
         const startingHex = successResult.beforeHex || "#3f2010";
+        const targetToneHex = TONE_HEX[dyeInput.targetTone] || "#8b7355";
+        
+        console.log("=== COLOR JOURNEY DEBUG ===");
+        console.log("Starting color:", startingHex, "Level:", hairState.currentLevel, "Tone:", hairState.currentUndertone);
+        console.log("Target:", dyeInput.targetTone, "Level:", dyeInput.targetLevel);
+        console.log("Bleach enabled:", dyeInput.bleachEnabled, "Lifts:", dyeInput.bleachLifts);
+        console.log("Result after hex:", afterHex);
+        
+        // Always show starting point
         journeyBlocks.push({
             hex: startingHex,
-            icon: "face",
-            label: "Start"
+            label: "Your Hair Now"
         });
+        console.log("Step 1 - Your Hair Now:", startingHex);
 
-        // Add bleach steps if any
-        if (bleachProgression && bleachProgression.length > 0) {
+        // Show bleach progression if enabled
+        if (dyeInput.bleachEnabled && bleachProgression && bleachProgression.length > 0) {
             bleachProgression.forEach((b, i) => {
                 const bleachResult = b as Extract<typeof b, { status: "success" }>;
                 journeyBlocks.push({
                     hex: bleachResult.afterHex,
-                    icon: "science",
-                    label: `Bleach ${i + 1}`
+                    label: `Bleach Session ${i + 1}`
                 });
+                console.log(`Step ${i + 2} - Bleach Session ${i + 1}:`, bleachResult.afterHex);
             });
         }
-
-        // Final result color
+        
+        // Show what the target color SHOULD look like (the goal)
+        const idealTargetHex = adjustColorForLevel(targetToneHex, dyeInput.targetLevel);
+        journeyBlocks.push({
+            hex: idealTargetHex,
+            label: "Your Goal"
+        });
+        console.log("Step N-1 - Your Goal:", idealTargetHex);
+        
+        // Show actual result (what you'll really get after applying dye)
         journeyBlocks.push({
             hex: afterHex,
-            icon: "colorize",
-            label: "Final"
+            label: "Actual Result"
         });
+        console.log("Step N - Actual Result:", afterHex);
+        console.log("=== END COLOR JOURNEY ===\n");
     }
 
     return (
@@ -117,21 +144,38 @@ export function InteractiveResult() {
                 </div>
 
                 {/* Result Split View */}
-                <section className="w-full relative bg-white dark:bg-zinc-900 rounded-[24px] shadow-sm border border-zinc-200 dark:border-white/5 overflow-hidden mb-6 min-h-[400px] flex flex-col md:flex-row">
-                    <div className="flex-1 relative flex flex-col items-center justify-center p-8 border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800">
-                        <span className="absolute top-6 left-6 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Before</span>
-                        <div className="relative w-48 h-48 sm:w-64 sm:h-64 mt-6 md:mt-0">
-                            <div className="absolute inset-0 rounded-[24px] overflow-hidden" style={{ backgroundColor: beforeHex }}>
-                                <div className="absolute inset-0 bg-linear-to-br from-white/10 dark:from-white/5 to-black/20 dark:to-black/40"></div>
+                <section className="w-full relative bg-white dark:bg-zinc-900 rounded-[24px] shadow-sm border border-zinc-200 dark:border-white/5 overflow-hidden mb-6">
+                    {/* Explanation Header */}
+                    <div className="px-8 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400 text-center">
+                            <span className="font-bold text-zinc-900 dark:text-zinc-100">Simulation:</span> This shows what happens when you apply <span className="font-semibold text-[#f49d25]">{dyeInput?.targetTone}</span> dye to your current <span className="font-semibold">{hairState?.currentUndertone}</span> hair
+                        </p>
+                    </div>
+                    
+                    <div className="flex flex-col md:flex-row min-h-[400px]">
+                        <div className="flex-1 relative flex flex-col items-center justify-center p-8 border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800">
+                            <span className="absolute top-6 left-6 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Before</span>
+                            <div className="relative w-48 h-48 sm:w-64 sm:h-64 mt-6 md:mt-0">
+                                <div className="absolute inset-0 rounded-[24px] overflow-hidden" style={{ backgroundColor: beforeHex }}>
+                                    <div className="absolute inset-0 bg-linear-to-br from-white/10 dark:from-white/5 to-black/20 dark:to-black/40"></div>
+                                </div>
+                            </div>
+                            <div className="mt-4 text-center">
+                                <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Your Current Hair</p>
+                                <p className="text-[10px] text-zinc-500 mt-1">Level {hairState?.currentLevel} {hairState?.currentUndertone}</p>
                             </div>
                         </div>
-                    </div>
-                    <div className="flex-1 relative flex flex-col items-center justify-center p-8 bg-zinc-50/50 dark:bg-black/20">
-                        <span className="absolute top-6 right-6 text-[10px] font-bold uppercase tracking-widest text-[#f49d25]">Result</span>
-                        <div className="relative w-56 h-56 sm:w-80 sm:h-80 mt-6 md:mt-0 z-10">
-                            <div className="absolute inset-0 rounded-[24px] overflow-hidden shadow-xl border-4 border-white dark:border-zinc-800 transition-colors duration-1000" style={{ backgroundColor: afterHex }}>
-                                <div className="absolute inset-0 bg-linear-to-br from-white/30 via-transparent to-black/30 mix-blend-overlay"></div>
-                                <div className="absolute inset-0 opacity-40 mix-blend-soft-light shadow-[inset_0_0_50px_rgba(255,255,255,1)]"></div>
+                        <div className="flex-1 relative flex flex-col items-center justify-center p-8 bg-zinc-50/50 dark:bg-black/20">
+                            <span className="absolute top-6 right-6 text-[10px] font-bold uppercase tracking-widest text-[#f49d25] z-20">After One Application</span>
+                            <div className="relative w-56 h-56 sm:w-72 sm:h-72 mt-6 md:mt-2 z-10">
+                                <div className="absolute inset-0 rounded-[24px] overflow-hidden shadow-xl border-4 border-white dark:border-zinc-800 transition-colors duration-1000" style={{ backgroundColor: afterHex }}>
+                                    <div className="absolute inset-0 bg-linear-to-br from-white/30 via-transparent to-black/30 mix-blend-overlay"></div>
+                                    <div className="absolute inset-0 opacity-40 mix-blend-soft-light shadow-[inset_0_0_50px_rgba(255,255,255,1)]"></div>
+                                </div>
+                            </div>
+                            <div className="mt-4 text-center">
+                                <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Realistic Result</p>
+                                <p className="text-[10px] text-zinc-500 mt-1">What you&apos;ll actually get</p>
                             </div>
                         </div>
                     </div>
@@ -229,37 +273,64 @@ export function InteractiveResult() {
                 </div>
 
                 {/* Color Journey Timeline */}
-                <div className="w-full   mb-16 px-4">
+                <div className="w-full mb-16 px-4">
                     <h2 className="text-[10px] font-bold tracking-[0.2em] text-zinc-500 uppercase mb-10 text-center">Your Color Journey</h2>
 
-                    <div className="flex items-center justify-between px-2 sm:px-12 relative">
-                        {/* Dashed line connecting nodes */}
-                        <div className="absolute top-[30px] sm:top-[40px] left-[10%] right-[10%] h-px border-t border-dashed border-zinc-300 dark:border-zinc-700 -z-10"></div>
+                    <div className="flex items-center justify-center gap-4 sm:gap-8 relative max-w-4xl mx-auto">
+                        {/* Connecting line */}
+                        <div className="absolute top-[30px] sm:top-[40px] left-[5%] right-[5%] h-px border-t-2 border-dashed border-zinc-300 dark:border-zinc-700 -z-10"></div>
 
                         {journeyBlocks.map((block, idx) => {
-                            const isLast = idx === journeyBlocks.length - 1;
+                            const isGoal = block.label === "Your Goal";
+                            const isActual = block.label === "Actual Result";
+                            const isStart = block.label === "Your Hair Now";
+                            
                             return (
-                                <div key={idx} className="flex flex-col items-center gap-3 sm:gap-4 relative group">
+                                <div key={idx} className="flex flex-col items-center gap-2 sm:gap-3 relative group">
                                     <div
                                         className={cn(
-                                            "rounded-[16px] border sm:border-2 border-white dark:border-white/10 shadow-md",
-                                            isLast
-                                                ? "w-16 h-16 sm:w-20 sm:h-20 shadow-xl overflow-hidden shimmer ring-4 ring-[#f49d25]/20"
-                                                : "w-12 h-12 sm:w-14 sm:h-14 hover:scale-110 transition-transform"
+                                            "rounded-2xl border-2 shadow-md transition-all",
+                                            isActual
+                                                ? "w-20 h-20 sm:w-24 sm:h-24 border-[#f49d25] ring-4 ring-[#f49d25]/20 shadow-xl"
+                                                : isGoal
+                                                ? "w-16 h-16 sm:w-20 sm:h-20 border-zinc-400 dark:border-zinc-600 ring-2 ring-zinc-300 dark:ring-zinc-700"
+                                                : isStart
+                                                ? "w-14 h-14 sm:w-16 sm:h-16 border-zinc-300 dark:border-zinc-700"
+                                                : "w-12 h-12 sm:w-14 sm:h-14 border-zinc-200 dark:border-zinc-800"
                                         )}
                                         style={{ backgroundColor: block.hex }}
                                     >
-                                        <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent pointer-events-none"></div>
+                                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent"></div>
                                     </div>
 
-                                    {isLast ? (
-                                        <span className="text-[9px] sm:text-[10px] font-bold text-[#f49d25] dark:text-white uppercase tracking-wider bg-zinc-100 dark:bg-transparent px-2 py-1 rounded-md">Final</span>
-                                    ) : (
-                                        <span className="text-[9px] sm:text-[10px] font-medium text-zinc-500 uppercase tracking-tight">{block.label}</span>
-                                    )}
+                                    <div className="flex flex-col items-center gap-1">
+                                        <span className={cn(
+                                            "text-[9px] sm:text-[10px] font-bold uppercase tracking-tight text-center whitespace-nowrap",
+                                            isActual
+                                                ? "text-[#f49d25]"
+                                                : isGoal
+                                                ? "text-zinc-600 dark:text-zinc-400"
+                                                : "text-zinc-500"
+                                        )}>
+                                            {block.label}
+                                        </span>
+                                        {isGoal && (
+                                            <span className="text-[8px] text-zinc-400 italic">(What you want)</span>
+                                        )}
+                                        {isActual && (
+                                            <span className="text-[8px] text-[#f49d25] italic">(What you get)</span>
+                                        )}
+                                    </div>
                                 </div>
                             );
                         })}
+                    </div>
+                    
+                    {/* Explanation */}
+                    <div className="mt-8 max-w-2xl mx-auto text-center">
+                        <p className="text-xs text-zinc-500 leading-relaxed">
+                            The journey shows your starting point, any intermediate steps needed, your goal color, and the realistic result you&apos;ll actually achieve.
+                        </p>
                     </div>
                 </div>
 

@@ -34,16 +34,22 @@ type SimulatorStepOneProps = {
 };
 
 const primaryUndertones = [
-  "red",
-  "red-orange",
-  "orange",
-  "orange-yellow",
-  "yellow",
-  "neutral",
-  "ash",
-  "gold",
-  "copper",
-  "burgundy",
+  // Browns (natural progression)
+  { key: "neutral", label: "Natural", category: "brown" },
+  { key: "ash", label: "Ash", category: "brown" },
+  { key: "beige", label: "Beige", category: "brown" },
+  { key: "matte", label: "Matte", category: "brown" },
+  
+  // Warm tones
+  { key: "gold", label: "Golden", category: "warm" },
+  { key: "copper", label: "Copper", category: "warm" },
+  { key: "caramel", label: "Caramel", category: "warm" },
+  
+  // Reds (grouped together)
+  { key: "red", label: "Red", category: "red" },
+  { key: "burgundy", label: "Burgundy", category: "red" },
+  { key: "mahogany", label: "Mahogany", category: "red" },
+  { key: "auburn", label: "Auburn", category: "red" },
 ] as const;
 
 export function SimulatorStepOne({
@@ -115,26 +121,33 @@ export function SimulatorStepOne({
             <label className="text-sm font-bold text-zinc-900 dark:text-zinc-200">
               Starting Tone
             </label>
+            <span className="text-[10px] text-zinc-500 capitalize">{draftUndertone.replace("-", " ")}</span>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2">
             {primaryUndertones.map((tone) => {
-              const isSelected = draftUndertone === tone;
-              const swatchHex = TONE_HEX[tone] || "#ccc";
+              const isSelected = draftUndertone === tone.key;
+              const swatchHex = TONE_HEX[tone.key] || "#8b7355";
 
               return (
                 <button
-                  key={tone}
-                  onClick={() => onChangeUndertone(tone)}
+                  key={tone.key}
+                  onClick={() => onChangeUndertone(tone.key)}
+                  title={tone.label}
                   style={{ backgroundColor: swatchHex }}
-                  title={tone.replace("-", " ")}
                   className={cn(
-                    "w-10 h-10 rounded-[12px] shadow-sm transition-all duration-200",
+                    "w-9 h-9 rounded-lg shadow-sm transition-all duration-200 relative",
                     isSelected
-                      ? "scale-110 border-[3px] border-zinc-900 dark:border-white shadow-md z-10"
-                      : "hover:scale-105 border border-black/10 dark:border-white/10 opacity-90",
+                      ? "scale-110 ring-2 ring-zinc-900 dark:ring-white shadow-md z-10"
+                      : "hover:scale-105 border border-zinc-200 dark:border-zinc-800"
                   )}
-                />
+                >
+                  {isSelected && (
+                    <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[8px] font-bold text-zinc-500 whitespace-nowrap">
+                      {tone.label}
+                    </div>
+                  )}
+                </button>
               );
             })}
           </div>
