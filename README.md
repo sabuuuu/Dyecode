@@ -1,6 +1,6 @@
 # Dyecode 🎨
 
-> A realistic hair color simulator that shows you what ACTUALLY happens when you dye your hair—not fantasy, but chemistry.
+> A realistic hair color simulator that shows you what ACTUALLY happens when you dye your hair, not fantasy, but chemistry.
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
